@@ -19,19 +19,53 @@ status: ## show git status
 	git status
 
 # -------------------
-# lint + format (auto-install tools if missing)
+# lint + format (cross-platform auto-install)
 # -------------------
 
 SHELL_SCRIPTS := $(shell find . -type f -name "*.sh")
 YAML_FILES    := $(shell find . -type f -name "*.yml" -o -name "*.yaml")
 JSON_FILES    := $(shell find . -type f -name "*.json")
 
-format: ## lint and format everything (auto-install tools if missing)
-	@command -v shellcheck >/dev/null 2>&1 || { echo "→ installing shellcheck"; sudo apt-get update && sudo apt-get install -y shellcheck; }
-	@command -v shfmt >/dev/null 2>&1 || { echo "→ installing shfmt"; sudo apt-get update && sudo apt-get install -y shfmt; }
-	@command -v yamllint >/dev/null 2>&1 || { echo "→ installing yamllint"; sudo apt-get update && sudo apt-get install -y yamllint; }
-	@command -v jq >/dev/null 2>&1 || { echo "→ installing jq"; sudo apt-get update && sudo apt-get install -y jq; }
-	@command -v prettier >/dev/null 2>&1 || { echo "→ installing prettier"; npm install -g prettier; }
+define ensure_tool
+	@command -v $(1) >/dev/null 2>&1 || { \
+		if command -v apt-get >/dev/null 2>&1; then \
+			echo "→ installing $(1) with apt"; \
+			sudo apt-get update && sudo apt-get install -y $(2); \
+		elif command -v brew >/dev/null 2>&1; then \
+			echo "→ installing $(1) with brew"; \
+			brew install $(2); \
+		else \
+			echo "❌ package manager not found, install $(1) manually"; \
+			exit 1; \
+		fi; \
+	}
+endef
+
+lint: ## run only linters (no auto-fix)
+	$(call ensure_tool,shellcheck,shellcheck)
+	$(call ensure_tool,yamllint,yamllint)
+	$(call ensure_tool,jq,jq)
+
+	@echo "→ linting shell scripts"
+	@[ -z "$(SHELL_SCRIPTS)" ] || shellcheck $(SHELL_SCRIPTS) || true
+
+	@echo "→ syntax checking .zshrc"
+	@zsh -n zsh/.zshrc || true
+
+	@echo "→ validating json"
+	@for f in $(JSON_FILES); do \
+		[ -f $$f ] && jq empty $$f || true; \
+	done
+
+	@echo "→ linting yaml"
+	@[ -z "$(YAML_FILES)" ] || yamllint $(YAML_FILES) || true
+
+format: ## lint and format everything (auto-fix)
+	$(call ensure_tool,shellcheck,shellcheck)
+	$(call ensure_tool,shfmt,shfmt)
+	$(call ensure_tool,yamllint,yamllint)
+	$(call ensure_tool,jq,jq)
+	$(call ensure_tool,prettier,prettier)
 
 	@echo "→ linting shell scripts"
 	@[ -z "$(SHELL_SCRIPTS)" ] || shellcheck $(SHELL_SCRIPTS) || true

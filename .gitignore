@@ -1,6 +1,13 @@
-cat > .gitignore <<'EOF'
+# shell history
 .zsh_history
+# local overrides
 *.local
+.zshrc.local
+.gitconfig.local
+# backups
+dotfiles_backup/
+# nvim swap/backup files
 *.swp
 *.swo
-EOF
+*.un~
+

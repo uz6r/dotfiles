@@ -1,6 +1,17 @@
 # dotfiles
 
-my personal dotfiles managed with [GNU stow](https://www.gnu.org/software/stow/)
+[![ci](https://github.com/uz6r/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/uz6r/dotfiles/actions/workflows/ci.yml)
+
+my personal dotfiles managed with [GNU stow](https://www.gnu.org/software/stow/) and a `Makefile` workflow.  
+includes linting/formatting, backups, and CI checks.
+
+## why
+
+because i am not about to waste hours rebuilding my setup from scratch  
+one day i will forget my laptop somewhere and when that happens i want to clone this repo, hit `make bootstrap`, and boom my shell, my aliases, my shortcuts, all back like nothing happened
+
+this whole thing started because i just wanted to mess with my zsh theme  
+now it is a full blown infra-as-code situation for my laptop
 
 ## bootstrap
 
