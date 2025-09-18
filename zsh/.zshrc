@@ -1,35 +1,52 @@
-# ------------------------------
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ---------------------------------
+# oh-my-zsh base
+# ---------------------------------
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# load oh-my-zsh
+plugins=(git)
+source $ZSH/oh-my-zsh.sh
+
+# ---------------------------------
 # fix PATH (system + npm + pnpm)
-# ------------------------------
+# ---------------------------------
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$PATH"
 
-# ------------------------------
-# colors & prompt
-# ------------------------------
-autoload -Uz colors && colors
-
+# ---------------------------------
+# history settings
+# ---------------------------------
 HISTSIZE=5000
 SAVEHIST=5000
 HISTFILE=~/.zsh_history
 setopt appendhistory sharehistory histignorealldups
 
+# ---------------------------------
+# completion tweaks
+# ---------------------------------
+autoload -Uz colors && colors
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-
-PROMPT='%F{green}%n@%m%f %F{blue}%~%f %# '
 
 setopt correct        # command correction
 setopt nobeep         # no terminal bell
 
-# ------------------------------
+# ---------------------------------
 # generic aliases
-# ------------------------------
+# ---------------------------------
 alias ll='ls -lah --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 
-# ------------------------------
+# ---------------------------------
 # pnpm shortcuts
-# ------------------------------
+# ---------------------------------
 alias p="pnpm"
 alias pi="pnpm install"
 alias pr="pnpm run"
@@ -62,9 +79,9 @@ gql() {
   fi
 }
 
-# ------------------------------
+# ---------------------------------
 # git shortcuts
-# ------------------------------
+# ---------------------------------
 alias gs="git status"
 alias ga="git add ."
 alias gc="git commit -m"
@@ -93,7 +110,10 @@ alias gstp="git stash pop"
 alias gcp="git cherry-pick"
 alias gfix="git commit --amend"
 
-# ------------------------------
+# ---------------------------------
 # courtsite shortcuts
-# ------------------------------
+# ---------------------------------
 alias compose="(cd ~/Courtsite/enjin && ./compose.sh)"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
