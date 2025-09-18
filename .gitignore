@@ -1,0 +1,6 @@
+cat > .gitignore <<'EOF'
+.zsh_history
+*.local
+*.swp
+*.swo
+EOF
