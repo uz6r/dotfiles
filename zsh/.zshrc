@@ -83,6 +83,16 @@ gpub() {
   git checkout -b "$1" && git push -u origin "$1"
 }
 
+alias gm="git merge"
+alias gr="git rebase"
+alias gri="git rebase -i"
+alias glog="git log --oneline --graph --decorate --all"
+
+alias gst="git stash"
+alias gstp="git stash pop"
+alias gcp="git cherry-pick"
+alias gfix="git commit --amend"
+
 # ------------------------------
 # courtsite shortcuts
 # ------------------------------
