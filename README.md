@@ -18,6 +18,7 @@ make bootstrap  # install stow + link dotfiles
 make update     # pull latest and relink
 make clean      # remove symlinks created by stow
 make status     # show git status
+make format     # lint and format dotfiles (auto-installs tools if missing)
 ```
 
 ## directory structure
@@ -35,7 +36,19 @@ dotfiles/
 └── zsh/           # zsh configs (.zshrc, themes, aliases)
 ```
 
+## linting & formatting
+
+- make format does both linting and formatting:
+- shell scripts linted with shellcheck, auto-formatted with shfmt
+- zsh configs syntax-checked with zsh -n (not auto-formatted)
+- yaml linted with yamllint, formatted with prettier
+- json validated with jq, formatted with prettier
+- markdown formatted with prettier
+
 ## notes
 
 - machine-specific secrets go in ~/.zshrc.local or ~/.gitconfig.local
 - add scripts to bin/ to make them available globally
+- all configs are symlinked into $HOME via stow
+- backups of existing files go into ~/dotfiles_backup before linking
+- powerlevel10k is used for zsh theme, with config stored in zsh/.p10k.zsh
