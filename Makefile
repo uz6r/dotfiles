@@ -39,10 +39,7 @@ format: ## lint and format everything (auto-install tools if missing)
 	@echo "→ syntax checking .zshrc"
 	@zsh -n zsh/.zshrc || true
 
-	@echo "→ linting yaml"
-	@[ -z "$(YAML_FILES)" ] || yamllint $(YAML_FILES)
-
-	@echo "→ linting json"
+	@echo "→ validating json"
 	@for f in $(JSON_FILES); do \
 		[ -f $$f ] && jq empty $$f || true; \
 	done
@@ -52,3 +49,16 @@ format: ## lint and format everything (auto-install tools if missing)
 
 	@echo "→ formatting yaml/json/md with prettier"
 	@prettier -w $(YAML_FILES) $(JSON_FILES) *.md || true
+
+	@echo "→ linting yaml (post-format, non-blocking)"
+	@[ -z "$(YAML_FILES)" ] || yamllint $(YAML_FILES) || true
+
+ci-check: ## run formatters + strict lint checks (used in CI)
+	@echo "→ running make format"
+	@$(MAKE) format
+
+	@echo "→ running strict yamllint"
+	@yamllint .
+
+	@echo "→ checking for uncommitted diffs"
+	@git diff --exit-code || (echo "❌ run 'make format' locally before committing" && exit 1)

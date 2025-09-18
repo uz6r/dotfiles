@@ -1,0 +1,21 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  lint-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck shfmt yamllint jq stow make
+          npm install -g prettier
+      - name: run format (lint + format)
+        run: make format
+      - name: run yamllint (strict in CI)
+        run: yamllint .
+      - name: check diff
+        run: git diff --exit-code || (echo "❌ run 'make format' locally before committing" && exit 1)
