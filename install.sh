@@ -1,4 +1,3 @@
-cat > install.sh <<'EOF'
 #!/bin/sh
 set -e
 
@@ -13,10 +12,10 @@ elif command -v brew >/dev/null 2>&1; then
 fi
 
 echo "→ previewing what will be linked"
-stow -nv zsh git bin || true
+stow -nv -t "$HOME" zsh git nvim bin || true
 
 echo "→ backing up conflicts into $backup_dir"
-for target in .zshrc .gitconfig; do
+for target in .zshrc .gitconfig .config/nvim/init.vim; do
   if [ -e "$HOME/$target" ] && [ ! -L "$HOME/$target" ]; then
     echo "   backing up $HOME/$target"
     mkdir -p "$backup_dir/$(dirname "$target")"
@@ -25,9 +24,6 @@ for target in .zshrc .gitconfig; do
 done
 
 echo "→ linking dotfiles (restow mode)"
-stow -v -R zsh git bin
+stow -v -R -t "$HOME" zsh git nvim bin
 
 echo "✅ done — restart your shell"
-EOF
-chmod +x install.sh
-
