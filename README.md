@@ -18,7 +18,8 @@ make bootstrap  # install stow + link dotfiles
 make update     # pull latest and relink
 make clean      # remove symlinks created by stow
 make status     # show git status
-make format     # lint and format dotfiles (auto-installs tools if missing)
+make format     # lint + format (auto-installs tools if missing)
+make ci-check   # simulate CI (strict lint + check diffs)
 ```
 
 ## directory structure
@@ -44,6 +45,20 @@ dotfiles/
 - yaml linted with yamllint, formatted with prettier
 - json validated with jq, formatted with prettier
 - markdown formatted with prettier
+
+## ci workflow
+
+github actions runs `make ci-check`, which:
+
+1. runs all formatters
+2. runs strict yamllint (using .yamllint.yaml)
+3. fails if git diff shows changes (you must commit formatted files)
+
+local:
+
+```sh
+make ci-check   # test the same checks CI will run
+```
 
 ## notes
 
