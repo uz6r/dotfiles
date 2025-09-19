@@ -2,16 +2,37 @@
 
 [![ci](https://github.com/uz6r/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/uz6r/dotfiles/actions/workflows/ci.yml)
 
-my personal dotfiles managed with [GNU stow](https://www.gnu.org/software/stow/) and a `Makefile` workflow.  
-includes linting/formatting, backups, and CI checks.
+my personal dotfiles as infra-as-code managed with [GNU stow](https://www.gnu.org/software/stow/)
 
 ## why
 
-because i am not about to waste hours rebuilding my setup from scratch  
-one day i will forget my laptop somewhere and when that happens i want to clone this repo, hit `make bootstrap`, and boom my shell, my aliases, my shortcuts, all back like nothing happened
+because my dev environment shouldn’t be a snowflake. one clone + `make bootstrap` and i get the same setup anywhere.
 
-this whole thing started because i just wanted to mess with my zsh theme  
-now it is a full blown infra-as-code situation for my laptop
+## requirements
+
+make sure the following are installed first:
+
+- **git** → clone this repo
+- **stow** → symlink configs
+- **make** → run the workflow
+
+for linting/formatting (`make setup` will install most automatically):
+
+- **shellcheck** (apt/brew)
+- **shfmt** (go install)
+- **yamllint** (apt/brew)
+- **jq** (apt/brew)
+- **prettier** (npm global install)
+- **luacheck** (luarocks)
+- **stylua** (cargo or binary release)
+
+you don’t need to remember these — just run:
+
+```sh
+make setup
+```
+
+and it will attempt to auto-install everything with your package manager. if something can’t be auto-installed (like prettier/stylua/luacheck), the makefile will tell you what to do.
 
 ## bootstrap
 
@@ -28,8 +49,10 @@ make help       # list available commands
 make bootstrap  # install stow + link dotfiles
 make update     # pull latest and relink
 make clean      # remove symlinks created by stow
-make status     # show git status
-make format     # lint + format (auto-installs tools if missing)
+make status     # check symlink status
+make setup      # auto-install all lint/format tools
+make format     # lint + format (auto-fix)
+make lint       # lint only (no auto-fix)
 make ci-check   # simulate CI (strict lint + check diffs)
 ```
 
@@ -37,15 +60,16 @@ make ci-check   # simulate CI (strict lint + check diffs)
 
 ```python
 dotfiles/
-├── .gitignore     # ignore history, local overrides, swap files
-├── LICENSE        # license file (MIT by default)
-├── Makefile       # make shortcuts (bootstrap, update, clean, status, help)
-├── README.md      # documentation
-├── bin/           # personal scripts (symlinked into ~/bin)
-├── git/           # git configs (.gitconfig etc.)
-├── install.sh     # bootstrap script (runs stow, used by make)
-├── nvim/          # neovim configs (.config/nvim/init.vim)
-└── zsh/           # zsh configs (.zshrc, themes, aliases)
+├── .gitignore       # ignore history, local overrides, swap files
+├── .luacheckrc      # tell luacheck about neovim globals (vim, etc.)
+├── LICENSE          # license file (MIT by default)
+├── Makefile         # make shortcuts (bootstrap, update, clean, status, lint/format)
+├── README.md        # documentation
+├── bin/             # personal scripts (symlinked into ~/bin)
+├── git/             # git configs (.gitconfig etc.)
+├── install.sh       # bootstrap script (runs stow, used by make)
+├── nvim/            # neovim configs (.config/nvim/init.lua + lua modules)
+└── zsh/             # zsh configs (.zshrc, .p10k.zsh, aliases)
 ```
 
 ## linting & formatting
@@ -56,6 +80,7 @@ dotfiles/
 - yaml linted with yamllint, formatted with prettier
 - json validated with jq, formatted with prettier
 - markdown formatted with prettier
+- lua (neovim configs) linted with luacheck, formatted with stylua
 
 ## ci workflow
 
