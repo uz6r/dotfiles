@@ -11,8 +11,12 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck shfmt yamllint jq stow make
+          sudo apt-get install -y shellcheck shfmt yamllint jq stow make lua5.4 luarocks cargo
           npm install -g prettier
+      - name: install luacheck (via luarocks)
+        run: sudo luarocks install luacheck
+      - name: install stylua (via cargo)
+        run: cargo install stylua
       - name: run format (lint + format)
         run: make format
       - name: run yamllint (strict in CI)
