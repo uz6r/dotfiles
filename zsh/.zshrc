@@ -114,6 +114,14 @@ alias gfix="git commit --amend"
 # courtsite shortcuts
 # ---------------------------------
 alias compose="(cd ~/Courtsite/enjin && ./compose.sh)"
+alias compose-stop="(cd ~/Courtsite/enjin && ./compose-stop.sh)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# ---------------------------------
+# local overrides (machine-specific / secrets)
+# ---------------------------------
+if [ -f ~/.zshrc.local ]; then
+  source ~/.zshrc.local
+fi
