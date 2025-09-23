@@ -69,6 +69,7 @@ dotfiles/
 ├── git/             # git configs (.gitconfig etc.)
 ├── install.sh       # bootstrap script (runs stow, used by make)
 ├── nvim/            # neovim configs (.config/nvim/init.lua + lua modules)
+├── tmux/            # tmux configs (.tmux.conf etc.)
 └── zsh/             # zsh configs (.zshrc, .p10k.zsh, aliases)
 ```
 
