@@ -118,6 +118,21 @@ alias compose="(cd ~/Courtsite/enjin && ./compose.sh)"
 alias compose-stop="(cd ~/Courtsite/enjin && ./compose-stop.sh)"
 alias compose-restart="(cd ~/Courtsite/enjin && ./compose-stop.sh && ./compose.sh)"
 
+# ---------------------------------
+# youtube / yt-dlp shortcuts
+# ---------------------------------
+# download best audio as mp3 in current dir
+alias ytmp3='yt-dlp -x --audio-format mp3 --audio-quality 0'
+# download best audio as mp3 and save to ~/Music
+alias ytmp3m='yt-dlp -x --audio-format mp3 --audio-quality 0 -o "$HOME/Music/%(title)s.%(ext)s"'
+# download best video+audio as mp4 in current dir
+alias ytmp4='yt-dlp -f bestvideo+bestaudio --merge-output-format mp4'
+# download playlist audio as mp3 into ~/Music
+alias ytpl3='yt-dlp -x --audio-format mp3 --audio-quality 0 -o "$HOME/Music/%(playlist)s/%(title)s.%(ext)s"'
+# download entire playlist video as mp4 into ~/Videos
+alias ytpl4='yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "$HOME/Videos/%(playlist)s/%(title)s.%(ext)s"'
+
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
