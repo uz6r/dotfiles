@@ -44,6 +44,7 @@ alias ll='ls -lah --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias dotfiles="code ~/uz6r/dotfiles"
+alias c.="code ."
 
 # ---------------------------------
 # pnpm shortcuts
@@ -114,6 +115,14 @@ alias gfix="git commit --amend"
 # ---------------------------------
 # courtsite shortcuts
 # ---------------------------------
+# cd into folder
+alias core="cd ~/Courtsite/enjin/enjin-core"
+alias konsol="cd ~/Courtsite/enjin/enjin-konsol"
+alias pelanggan="cd ~/Courtsite/enjin/enjin-pelanggan"
+alias proksi="cd ~/Courtsite/enjin/enjin-proksi"
+alias setiausaha="cd ~/Courtsite/enjin/enjin-setiausaha"
+alias workflow="cd ~/Courtsite/enjin/enjin-workflow"
+
 alias compose="(cd ~/Courtsite/enjin && ./compose.sh)"
 alias compose-stop="(cd ~/Courtsite/enjin && ./compose-stop.sh)"
 alias compose-restart="(cd ~/Courtsite/enjin && ./compose-stop.sh && ./compose.sh)"
@@ -146,3 +155,11 @@ fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# pnpm
+export PNPM_HOME="/home/uzer/snap/code/208/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
