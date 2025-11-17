@@ -86,6 +86,30 @@ bak() { cp "$1"{,.bak}; }
 # kill process on port
 killport() { lsof -ti:$1 | xargs kill -9 }
 
+localdev() {
+  dir1="~/Courtsite/enjin/enjin-proksi"
+  dir2="~/Courtsite/enjin/enjin-pelanggan"
+  dir3="~/Courtsite/enjin/enjin-konsol"
+  dir4="~/Courtsite/enjin/enjin-core"
+
+  if [ -z "$TMUX" ]; then
+    tmux new-session "cd $dir1; exec zsh" \; \
+      split-window -h "cd $dir2; exec zsh" \; \
+      split-window -v "cd $dir3; exec zsh" \; \
+      select-pane -t 0 \; \
+      split-window -v "cd $dir4; exec zsh" \; \
+      select-layout tiled
+  else
+    tmux new-window "cd $dir1; exec zsh" \; \
+      split-window -h "cd $dir2; exec zsh" \; \
+      split-window -v "cd $dir3; exec zsh" \; \
+      select-pane -t 0 \; \
+      split-window -v "cd $dir4; exec zsh" \; \
+      select-layout tiled
+  fi
+}
+
+
 # ---------------------------------
 # quick edits & system
 # ---------------------------------
