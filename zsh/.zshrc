@@ -84,7 +84,15 @@ mkcd() { mkdir -p "$1" && cd "$1"; }
 bak() { cp "$1"{,.bak}; }
 
 # kill process on port
-killport() { lsof -ti:$1 | xargs kill -9 }
+killport() {
+  local pid=$(lsof -ti:$1)
+  if [ -z "$pid" ]; then
+    echo "no process found on port $1"
+    return 0
+  fi
+  kill -9 $pid
+  echo "killed process $pid on port $1"
+}
 
 localdev() {
   dir1="~/Courtsite/enjin/enjin-proksi"
