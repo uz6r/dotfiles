@@ -99,21 +99,27 @@ localdev() {
   dir2="~/Courtsite/enjin/enjin-pelanggan"
   dir3="~/Courtsite/enjin/enjin-konsol"
   dir4="~/Courtsite/enjin/enjin-core"
-
-  if [ -z "$TMUX" ]; then
+  dir5="~/Courtsite/enjin/enjin-setiausaha"
+  dir6="~/Courtsite/enjin/enjin-workflow"
+  
+  start_tmux_layout() {
     tmux new-session "cd $dir1; exec zsh" \; \
       split-window -h "cd $dir2; exec zsh" \; \
       split-window -v "cd $dir3; exec zsh" \; \
       select-pane -t 0 \; \
       split-window -v "cd $dir4; exec zsh" \; \
+      select-pane -t 1 \; \
+      split-window -v "cd $dir5; exec zsh" \; \
+      select-pane -t 2 \; \
+      split-window -v "cd $dir6; exec zsh" \; \
       select-layout tiled
+  }
+  
+  if [ -z "$TMUX" ]; then
+    start_tmux_layout
   else
-    tmux new-window "cd $dir1; exec zsh" \; \
-      split-window -h "cd $dir2; exec zsh" \; \
-      split-window -v "cd $dir3; exec zsh" \; \
-      select-pane -t 0 \; \
-      split-window -v "cd $dir4; exec zsh" \; \
-      select-layout tiled
+    tmux new-window
+    start_tmux_layout
   fi
 }
 
@@ -235,6 +241,7 @@ alias konsol="cd ~/Courtsite/enjin/enjin-konsol"
 alias pelanggan="cd ~/Courtsite/enjin/enjin-pelanggan"
 alias proksi="cd ~/Courtsite/enjin/enjin-proksi"
 alias setiausaha="cd ~/Courtsite/enjin/enjin-setiausaha"
+alias sinar="cd ~/Courtsite/enjin/sinar-client"
 alias workflow="cd ~/Courtsite/enjin/enjin-workflow"
 alias infra="cd ~/Courtsite/infrastructure"
 
