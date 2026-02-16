@@ -4,16 +4,20 @@ all: help
 help: ## show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-bootstrap: ## install stow + link dotfiles
+bootstrap: ## install stow + link dotfiles + setup hooks
 	chmod +x install.sh
 	./install.sh
+	@if [ -d ".git" ]; then \
+		git config core.hooksPath .githooks || true; \
+		echo "✅ git hooks configured"; \
+	fi
 
 update: ## pull latest and relink
 	git pull origin main
 	./install.sh
 
 clean: ## remove symlinks created by stow
-	stow -D zsh git nvim bin
+	stow -D zsh git nvim bin tmux
 
 status: ## show dotfiles + symlink status
 	@echo "→ checking stow"

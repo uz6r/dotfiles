@@ -4,11 +4,20 @@ set -e
 backup_dir="$HOME/dotfiles_backup"
 mkdir -p "$backup_dir"
 
-echo "installing stow (if missing)"
-if command -v apt >/dev/null 2>&1; then
-  sudo apt update && sudo apt install -y stow
-elif command -v brew >/dev/null 2>&1; then
-  brew install stow
+echo "checking for stow"
+if ! command -v stow >/dev/null 2>&1; then
+  echo "installing stow..."
+  if command -v apt >/dev/null 2>&1; then
+    sudo apt update && sudo apt install -y stow
+  elif command -v brew >/dev/null 2>&1; then
+    brew install stow
+  else
+    echo "❌ stow not found and no package manager detected"
+    echo "   please install stow manually: https://www.gnu.org/software/stow/"
+    exit 1
+  fi
+else
+  echo "✅ stow already installed"
 fi
 
 echo "previewing what will be linked"
@@ -30,6 +39,16 @@ for target in .zshrc .gitconfig .config/nvim/init.lua; do
 done
 
 echo "linking dotfiles (restow mode)"
-stow -v -R -t "$HOME" zsh git nvim bin tmux || true
+if stow -v -R -t "$HOME" zsh git nvim bin tmux; then
+  echo "✅ done. restart your shell to apply changes"
+else
+  echo "⚠️  stow encountered errors. check conflicts above and resolve manually"
+  exit 1
+fi
 
-echo "✅ done. restart your shell (merge conflicts manually if stow warned)"
+# Setup git hooks if in a git repo
+if [ -d ".git" ]; then
+  echo "setting up git hooks"
+  git config core.hooksPath .githooks || true
+  echo "✅ git hooks configured"
+fi

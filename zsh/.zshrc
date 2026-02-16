@@ -32,7 +32,7 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME
 # ---------------------------------
 HISTSIZE=5000
 SAVEHIST=5000
-HISTFILE=~/.zsh_history
+HISTFILE="$HOME/.zsh_history"
 setopt appendhistory sharehistory histignorealldups
 
 # ---------------------------------
@@ -53,7 +53,7 @@ setopt pushdignoredups # don't push duplicates
 alias ll='ls -lah --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
-alias dotfiles="code ~/uz6r/dotfiles"
+alias dotfiles="code ${DOTFILES_DIR:-$HOME/uz6r/dotfiles}"
 alias c.="code ."
 
 # directory stack navigation
@@ -95,12 +95,13 @@ killport() {
 }
 
 localdev() {
-  dir1="~/Courtsite/enjin/enjin-proksi"
-  dir2="~/Courtsite/enjin/enjin-pelanggan"
-  dir3="~/Courtsite/enjin/enjin-konsol"
-  dir4="~/Courtsite/enjin/enjin-core"
-  dir5="~/Courtsite/enjin/enjin-setiausaha"
-  dir6="~/Courtsite/enjin/enjin-workflow"
+  local base_dir="${COURTSITE_DIR:-$HOME/Courtsite}/enjin"
+  dir1="$base_dir/enjin-proksi"
+  dir2="$base_dir/enjin-pelanggan"
+  dir3="$base_dir/enjin-konsol"
+  dir4="$base_dir/enjin-core"
+  dir5="$base_dir/enjin-setiausaha"
+  dir6="$base_dir/enjin-workflow"
   
   start_tmux_layout() {
     tmux new-session "cd $dir1; exec zsh" \; \
@@ -127,8 +128,8 @@ localdev() {
 # ---------------------------------
 # quick edits & system
 # ---------------------------------
-alias zshrc='${EDITOR:-code} ~/.zshrc'
-alias reload='source ~/.zshrc && echo "✅ .zshrc reloaded"'
+alias zshrc='${EDITOR:-code} "$HOME/.zshrc"'
+alias reload='source "$HOME/.zshrc" && echo "✅ .zshrc reloaded"'
 alias myip='curl -s ifconfig.me && echo'
 alias localip='ip addr show | grep "inet " | grep -v 127.0.0.1'
 alias ports='netstat -tulanp'
@@ -236,18 +237,18 @@ alias dlog='docker logs -f'
 # courtsite shortcuts
 # ---------------------------------
 # cd into folder
-alias core="cd ~/Courtsite/enjin/enjin-core"
-alias konsol="cd ~/Courtsite/enjin/enjin-konsol"
-alias pelanggan="cd ~/Courtsite/enjin/enjin-pelanggan"
-alias proksi="cd ~/Courtsite/enjin/enjin-proksi"
-alias setiausaha="cd ~/Courtsite/enjin/enjin-setiausaha"
-alias sinar="cd ~/Courtsite/enjin/sinar-client"
-alias workflow="cd ~/Courtsite/enjin/enjin-workflow"
-alias infra="cd ~/Courtsite/infrastructure"
+alias core="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-core"
+alias konsol="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-konsol"
+alias pelanggan="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-pelanggan"
+alias proksi="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-proksi"
+alias setiausaha="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-setiausaha"
+alias sinar="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/sinar-client"
+alias workflow="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-workflow"
+alias infra="cd ${COURTSITE_DIR:-$HOME/Courtsite}/infrastructure"
 
-alias compose="(cd ~/Courtsite/enjin && ./compose.sh)"
-alias compose-stop="(cd ~/Courtsite/enjin && ./compose-stop.sh)"
-alias compose-restart="(cd ~/Courtsite/enjin && ./compose-stop.sh && ./compose.sh)"
+alias compose="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose.sh)"
+alias compose-stop="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose-stop.sh)"
+alias compose-restart="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose-stop.sh && ./compose.sh)"
 
 # ---------------------------------
 # youtube / yt-dlp shortcuts
@@ -267,40 +268,69 @@ alias ytpl4='yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "$HOME/V
 # powerlevel10k
 # ---------------------------------
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+[[ ! -f "$HOME/.p10k.zsh" ]] || source "$HOME/.p10k.zsh"
 
 # ---------------------------------
-# optional plugins (uncomment to enable)
+# optional plugins (auto-load if installed)
 # ---------------------------------
-# Auto-suggestions (install: git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions)
-# Then add 'zsh-autosuggestions' to plugins array above
+# Auto-suggestions
+if [ -f "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
 
-# Syntax highlighting (install: git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting)
-# Then add 'zsh-syntax-highlighting' to plugins array above
+# Syntax highlighting (must be loaded last)
+if [ -f "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+  source "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
 
 # fzf integration
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-# export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+[ -f "$HOME/.fzf.zsh" ] && source "$HOME/.fzf.zsh"
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
 # ---------------------------------
-# nvm
+# nvm (optional - only load if installed)
 # ---------------------------------
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  \. "$NVM_DIR/nvm.sh"
+fi
+if [ -s "$NVM_DIR/bash_completion" ]; then
+  \. "$NVM_DIR/bash_completion"
+fi
 
 # ---------------------------------
-# pnpm
+# pnpm (auto-detect common installation paths)
 # ---------------------------------
-export PNPM_HOME="/home/uzer/snap/code/208/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+if command -v pnpm >/dev/null 2>&1; then
+  # pnpm is already in PATH, nothing to do
+  :
+elif [ -n "$PNPM_HOME" ] && [ -d "$PNPM_HOME" ]; then
+  # Use explicit PNPM_HOME if set
+  case ":$PATH:" in
+    *":$PNPM_HOME:"*) ;;
+    *) export PATH="$PNPM_HOME:$PATH" ;;
+  esac
+else
+  # Try common installation locations
+  for pnpm_path in \
+    "$HOME/.local/share/pnpm" \
+    "$HOME/.pnpm" \
+    "$HOME/snap/code/current/.local/share/pnpm" \
+    "$HOME/Library/pnpm"; do
+    if [ -d "$pnpm_path" ]; then
+      export PNPM_HOME="$pnpm_path"
+      case ":$PATH:" in
+        *":$PNPM_HOME:"*) ;;
+        *) export PATH="$PNPM_HOME:$PATH" ;;
+      esac
+      break
+    fi
+  done
+fi
 
 # ---------------------------------
 # local overrides (machine-specific / secrets)
 # ---------------------------------
-if [ -f ~/.zshrc.local ]; then
-  source ~/.zshrc.local
+if [ -f "$HOME/.zshrc.local" ]; then
+  source "$HOME/.zshrc.local"
 fi

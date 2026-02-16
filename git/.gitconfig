@@ -1,3 +1,61 @@
 [user]
+	# Override in ~/.gitconfig.local for machine-specific values
 	name = Uzair
 	email = uzairzahari@yahoo.com
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = false
+	ff = only
+
+[push]
+	default = simple
+	autoSetupRemote = true
+
+[core]
+	editor = code --wait
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+
+[color]
+	ui = auto
+
+[alias]
+	# Status shortcuts
+	st = status
+	stat = status --short
+	# Log shortcuts
+	lg = log --oneline --graph --decorate --all
+	logg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+	# Diff shortcuts
+	diffc = diff --cached
+	# Branch shortcuts
+	br = branch
+	co = checkout
+	# Commit shortcuts
+	ci = commit
+	amend = commit --amend --no-edit
+	# Stash shortcuts
+	ss = stash save
+	sp = stash pop
+	sl = stash list
+	# Fetch shortcuts
+	fetchall = fetch --all --prune
+	# Clean shortcuts
+	cleanup = !git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -d
+
+[diff]
+	tool = vimdiff
+
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
+
+[rerere]
+	enabled = true
+
+# Include machine-specific overrides
+[include]
+	path = ~/.gitconfig.local

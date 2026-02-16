@@ -1,0 +1,18 @@
+#!/bin/sh
+# Pre-commit hook to run formatting checks
+# This ensures code is formatted before committing
+
+echo "Running pre-commit checks..."
+
+# Run formatting
+make format > /dev/null 2>&1
+
+# Check for uncommitted changes
+if ! git diff --exit-code --quiet; then
+  echo "❌ Code was reformatted. Please review and stage the changes."
+  echo "   Run 'git add -A' to stage formatted files, then commit again."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed"
+exit 0
