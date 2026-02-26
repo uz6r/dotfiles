@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+#
+# sinar-pi-setup - Build + create config(s) + package sinarclient
+# Stops at packaging; run "make sync HOST=<hostname>" manually when Pi is ready.
+#
+# Usage:
+#   Interactive:   sinar-pi-setup
+#   Non-interactive: sinar-pi-setup config1.toml [config2.toml ...]
+#   Flags:         --no-build  --dry-run
+#
+if [[ -n "$SUDO_USER" ]]; then
+  ACTUAL_HOME="$(eval echo "~$SUDO_USER")"
+else
+  ACTUAL_HOME="$HOME"
+fi
+SINAR_DIR="${SINAR_DIR:-${COURTSITE_DIR:-$ACTUAL_HOME/Courtsite}/enjin/sinar-client}"
+cd "$SINAR_DIR"
+
+SKIP_BUILD=false
+DRY_RUN=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-build)  SKIP_BUILD=true; shift ;;
+    --dry-run)   DRY_RUN=true; shift ;;
+    -h|--help)
+      echo "Usage: sinar-pi-setup [--no-build] [--dry-run] [config1.toml config2.toml ...]"
+      exit 0
+      ;;
+    *) break ;;
+  esac
+done
+
+run() {
+  if $DRY_RUN; then
+    echo "  [DRY-RUN] $*"
+  else
+    "$@"
+  fi
+}
+
+prompt() {
+  local var="$1" msg="$2" default="${3:-}"
+  if [[ -n "$default" ]]; then
+    read -r -p "${msg} [$default]: " "$var"
+    eval "[[ -z \"\$$var\" ]] && $var=\"$default\""
+  else
+    read -r -p "${msg}: " "$var"
+  fi
+}
+
+do_build() {
+  echo "==> Building pi-client and sinar-client"
+  run make
+}
+
+# Create config with custom BoardID, ToggleTime etc
+create_config() {
+  local centre_name tenant_id board_id toggle_time fallback_count frequency brand
+  centre_name="$1"
+  tenant_id="$2"
+  board_id="${3:-1}"
+  toggle_time="${4:-5s}"
+  fallback_count="${5:-0}"
+  frequency="${6:-10s}"
+  brand="${7:-weiba}"
+
+  centre_name="${centre_name%.toml}"
+  local config_path="configs/${centre_name}.toml"
+  local content="TenantID = \"${tenant_id}\"
+BoardID = ${board_id}
+FallbackCount = ${fallback_count}
+Frequency = \"${frequency}\"
+ToggleTime = \"${toggle_time}\"
+Brand = \"${brand}\"
+"
+  if $DRY_RUN; then
+    echo "  [DRY-RUN] write $config_path"
+  else
+    echo "$content" > "$config_path"
+  fi
+  echo "$config_path"
+}
+
+do_pkger() {
+  local sinarcfg="$1" is_multi="$2"
+  echo "==> Packaging sinarclient.tar.gz"
+  if [[ "$is_multi" == "1" ]]; then
+    run make pkger-multi SINARCFG="$sinarcfg"
+  else
+    run make pkger SINARCFG="$sinarcfg"
+  fi
+}
+
+main() {
+  local CONFIG_PATHS CONFIG_PATH IS_MULTI=0
+
+  if [[ $# -ge 1 ]]; then
+    # Non-interactive: config path(s) as args
+    CONFIG_PATHS=("$@")
+    [[ ${#CONFIG_PATHS[@]} -ge 2 ]] && IS_MULTI=1
+    [[ ${#CONFIG_PATHS[@]} -eq 1 ]] && CONFIG_PATH="${CONFIG_PATHS[0]}" || CONFIG_PATH="${CONFIG_PATHS[*]}"
+    echo "Config(s): $CONFIG_PATH"
+  else
+    # Interactive
+    echo "=== Sinar Pi Setup ==="
+    echo "Package: (1) single  (2) multi"
+    read -r -p "Choice: " pkg_choice
+    [[ "$pkg_choice" == "2" ]] && IS_MULTI=1
+
+    if [[ "$IS_MULTI" == "1" ]]; then
+      local count configs=()
+      prompt count "Number of configs" "2"
+      for ((i=1; i<=count; i++)); do
+        echo "--- Config $i ---"
+        local centre_name tenant_id board_id toggle_time
+        prompt centre_name "Centre name (e.g. OncidiumHallKotaKemuning)"
+        prompt tenant_id "Tenant ID (from Metabase)"
+        prompt board_id "BoardID" "1"
+        prompt toggle_time "ToggleTime" "5s"
+        configs+=("$(create_config "$centre_name" "$tenant_id" "$board_id" "$toggle_time")")
+      done
+      CONFIG_PATH="${configs[*]}"
+    else
+      local centre_name tenant_id board_id toggle_time
+      prompt centre_name "Centre name (e.g. OncidiumHallKotaKemuning)"
+      prompt tenant_id "Tenant ID (from Metabase)"
+      prompt board_id "BoardID" "1"
+      prompt toggle_time "ToggleTime" "5s"
+      CONFIG_PATH=$(create_config "$centre_name" "$tenant_id" "$board_id" "$toggle_time")
+    fi
+  fi
+
+  CONFIG_PATH="$(echo "$CONFIG_PATH" | tr -d '\n\r')"
+
+  $SKIP_BUILD || do_build
+  do_pkger "$CONFIG_PATH" "$IS_MULTI"
+
+  echo ""
+  echo "=== Done! sinarclient.tar.gz ready. ==="
+  echo "When Pi is online: make sync HOST=<hostname>"
+}
+
+main "$@"

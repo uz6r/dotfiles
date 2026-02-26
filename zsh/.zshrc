@@ -243,6 +243,7 @@ alias pelanggan="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-pelanggan"
 alias proksi="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-proksi"
 alias setiausaha="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-setiausaha"
 alias sinar="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/sinar-client"
+alias sinar-pi-setup="${DOTFILES_DIR:-$HOME/uz6r/dotfiles}/bin/sinar-pi-setup"
 alias workflow="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-workflow"
 alias infra="cd ${COURTSITE_DIR:-$HOME/Courtsite}/infrastructure"
 
