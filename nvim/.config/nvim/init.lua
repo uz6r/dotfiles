@@ -33,6 +33,9 @@ vim.keymap.set("n", "<leader>gg", ":Git<cr>")
 vim.keymap.set("n", "<leader>gp", ":Git push<cr>")
 vim.keymap.set("n", "<leader>gs", ":Git status<cr>")
 
+-- Markdown preview
+vim.keymap.set("n", "<leader>mp", ":Glow<cr>")
+
 -- Git conflict
 vim.keymap.set("n", "<leader>gc1", ":GitConflictChooseOurs<cr>")
 vim.keymap.set("n", "<leader>gc2", ":GitConflictChooseTheirs<cr>")
@@ -397,11 +400,25 @@ require("lazy").setup({
 	-- Git
 	"tpope/vim-fugitive",
 
+	-- Markdown preview (glow)
+	{
+		"ellisonleao/glow.nvim",
+		cmd = "Glow",
+		config = function()
+			require("glow").setup({
+				border = "rounded",
+				style = "dark",
+				preview = true,
+			})
+		end,
+	},
+
 	-- Merge conflicts
 	{
-		"akinsho/vim-gitconflict",
+		"akinsho/git-conflict.nvim",
+		version = "*",
 		config = function()
-			require("gitconflict").setup()
+			require("git-conflict").setup()
 		end,
 	},
 })

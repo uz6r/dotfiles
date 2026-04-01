@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Usage: update-migration-pr
+# Interactively prompts for domain, revision, and enjin PR link.
+# Creates dev and prod PRs in the infrastructure repo.
+
+DOMAINS=(harga invois lhdn_invois lokasi masa membership pembayaran pengguna persekutuan sesi settlement sinar read_only_views)
+
+echo "Select domain:"
+select DOMAIN_LOWER in "${DOMAINS[@]}"; do
+  [[ -n "${DOMAIN_LOWER}" ]] && break
+  echo "Invalid selection."
+done
+
+read -rp "Migration revision (e.g. d70d9c43882f): " REVISION
+read -rp "Enjin PR number or URL: " PR_INPUT
+
+CONFIG_VAR="${DOMAIN_LOWER^^}_REVISION"
+
+if [[ "${PR_INPUT}" =~ ^https?:// ]]; then
+  PR_LINK="${PR_INPUT}"
+elif [[ "${PR_INPUT}" =~ ^[0-9]+$ ]]; then
+  PR_LINK="https://github.com/Courtsite-Internal/enjin/pull/${PR_INPUT}"
+else
+  echo "Error: Invalid PR input. Provide a number or full URL."
+  exit 1
+fi
+
+INFRA_DIR="${INFRA_DIR:-$HOME/Courtsite/infrastructure}"
+
+cd "${INFRA_DIR}"
+git checkout master >/dev/null 2>&1
+git pull --rebase >/dev/null 2>&1
+
+DEV_BRANCH="update-${DOMAIN_LOWER}-dev-${REVISION}"
+PROD_BRANCH="update-${DOMAIN_LOWER}-prod-${REVISION}"
+DEV_CONFIG="k8s-project/courtsite/enjin/development/core-upgrade-database-config.yml"
+PROD_CONFIG="k8s-project/courtsite/enjin/production/core-upgrade-database-config.yml"
+PR_BODY="Update ${DOMAIN_LOWER} core revision to \`${REVISION}\`
+
+Related: ${PR_LINK}"
+
+# --- DEV ---
+git checkout -B "${DEV_BRANCH}" master >/dev/null 2>&1
+sed -i "s/${CONFIG_VAR}: \".*\"/${CONFIG_VAR}: \"${REVISION}\"/" "${DEV_CONFIG}"
+git add "${DEV_CONFIG}"
+git commit -m "Set dev core ${DOMAIN_LOWER} revision ${REVISION}" >/dev/null 2>&1
+git push -f origin "${DEV_BRANCH}" >/dev/null 2>&1
+
+EXISTING_DEV=$(gh pr list --head "${DEV_BRANCH}" --json number --jq '.[0].number // empty' 2>/dev/null || true)
+if [[ -n "${EXISTING_DEV}" ]]; then
+  gh pr edit "${EXISTING_DEV}" --body "${PR_BODY}" >/dev/null 2>&1
+  echo "Updated dev PR: https://github.com/Courtsite-Internal/infrastructure/pull/${EXISTING_DEV}"
+else
+  DEV_URL=$(gh pr create --base master --head "${DEV_BRANCH}" \
+    --title "Update dev ${DOMAIN_LOWER} ${REVISION}" \
+    --body "${PR_BODY}")
+  echo "Created dev PR: ${DEV_URL}"
+fi
+
+# --- PROD ---
+git checkout -B "${PROD_BRANCH}" master >/dev/null 2>&1
+sed -i "s/${CONFIG_VAR}: \".*\"/${CONFIG_VAR}: \"${REVISION}\"/" "${PROD_CONFIG}"
+git add "${PROD_CONFIG}"
+git commit -m "Set prod core ${DOMAIN_LOWER} revision ${REVISION}" >/dev/null 2>&1
+git push -f origin "${PROD_BRANCH}" >/dev/null 2>&1
+
+EXISTING_PROD=$(gh pr list --head "${PROD_BRANCH}" --json number --jq '.[0].number // empty' 2>/dev/null || true)
+if [[ -n "${EXISTING_PROD}" ]]; then
+  gh pr edit "${EXISTING_PROD}" --body "${PR_BODY}" >/dev/null 2>&1
+  echo "Updated prod PR: https://github.com/Courtsite-Internal/infrastructure/pull/${EXISTING_PROD}"
+else
+  PROD_URL=$(gh pr create --base master --head "${PROD_BRANCH}" \
+    --title "Update prod ${DOMAIN_LOWER} ${REVISION}" \
+    --body "${PR_BODY}")
+  echo "Created prod PR: ${PROD_URL}"
+fi
+
+git checkout master >/dev/null 2>&1

@@ -32,7 +32,7 @@ source $ZSH/oh-my-zsh.sh
 # ---------------------------------
 # fix PATH (system + npm + pnpm)
 # ---------------------------------
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$PATH"
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$HOME/uz6r/dotfiles/scripts:$PATH"
 
 # ---------------------------------
 # history settings
