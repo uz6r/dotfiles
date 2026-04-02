@@ -1,0 +1,334 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# shellcheck disable=SC2154
+
+# =============================================================================
+# sinar-pi-wifi-setup - WiFi setup helper for Raspberry Pi (sinar-client)
+# =============================================================================
+# Two modes:
+#   1) Manual WiFi  — generate .nmconnection from SSID & password, rsync to Pi
+#   2) Available WiFi — connect Pi to a discoverable network via nmcli
+#
+# Usage: sinar-pi-wifi-setup
+# =============================================================================
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+info()    { echo -e "${CYAN}[INFO]${NC}  $*"; }
+success() { echo -e "${GREEN}[OK]${NC}    $*"; }
+warn()    { echo -e "${YELLOW}[WARN]${NC}  $*"; }
+error()   { echo -e "${RED}[ERR]${NC}   $*"; }
+
+prompt() {
+  local var_name="$1" prompt_text="$2" default="${3:-}"
+  local input
+  if [[ -n "$default" ]]; then
+    read -rp "${prompt_text} [${default}]: " input
+    eval "$var_name='${input:-$default}'"
+  else
+    read -rp "${prompt_text}: " input
+    eval "$var_name='$input'"
+  fi
+}
+
+prompt_secret() {
+  local var_name="$1" prompt_text="$2"
+  local input
+  read -rsp "${prompt_text}: " input
+  echo
+  eval "$var_name='$input'"
+}
+
+# ---------------------------------------------------------------------------
+# Ensure sshpass is available
+# ---------------------------------------------------------------------------
+ensure_sshpass() {
+  if command -v sshpass &>/dev/null; then
+    return
+  fi
+  echo ""
+  warn "sshpass is required for automated SSH/rsync operations."
+  prompt install_sshpass "Install sshpass now? (y/n)" "y"
+  if [[ "$install_sshpass" =~ ^[Yy]$ ]]; then
+    if command -v apt-get &>/dev/null; then
+      sudo apt-get update && sudo apt-get install -y sshpass
+    elif command -v brew &>/dev/null; then
+      brew install hudochenkov/sshpass/sshpass
+    else
+      error "No supported package manager found. Install sshpass manually."
+      exit 1
+    fi
+  else
+    warn "You will be prompted for the SSH password multiple times."
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Print next-step instructions the user can copy-paste on the Pi
+# ---------------------------------------------------------------------------
+print_next_steps() {
+  local pi_host="$1"
+  local nmconn_file="$2"
+
+  echo ""
+  echo -e "${BOLD}═══════════════════════════════════════════════════════════${NC}"
+  echo -e "${BOLD}  NEXT STEPS — Copy & paste these commands on your Pi${NC}"
+  echo -e "${BOLD}═══════════════════════════════════════════════════════════${NC}"
+  echo ""
+  echo -e "${YELLOW}Step 1: SSH into the Pi${NC}"
+  echo "  ssh pi@${pi_host}.local"
+  echo ""
+  if [[ -n "$nmconn_file" ]]; then
+    echo -e "${YELLOW}Step 2: Verify the .nmconnection file arrived${NC}"
+    echo "  ls /etc/NetworkManager/system-connections/${nmconn_file}"
+    echo ""
+  fi
+  echo -e "${YELLOW}Step 3: Verify NetworkManager picked it up${NC}"
+  echo "  nmcli connection"
+  echo ""
+  echo -e "${YELLOW}Step 4: (Optional) Force-connect to this network now${NC}"
+  echo "  sudo nmcli connection up '${wifi_ssid:-<ssid>}'"
+  echo ""
+  echo -e "${YELLOW}Step 5: Continue with sinar-client setup${NC}"
+  echo "  cd ~/sinarclient"
+  echo "  tar -xzf sinarclient.tar.gz"
+  echo "  ls"
+  echo "  rm sinarclient.tar.gz"
+  echo "  chmod +x setup.sh"
+  echo "  sudo ./setup.sh"
+  echo ""
+  echo -e "${YELLOW}Step 6: Connect to Tailscale${NC}"
+  echo "  sudo tailscale up --authkey <auth-key-from-bitwarden>"
+  echo ""
+  echo -e "${YELLOW}Step 7: Verify sinarclient is running${NC}"
+  echo "  systemctl status sinarclient"
+  echo ""
+  echo -e "${YELLOW}Step 8: Verify WiFi connections${NC}"
+  echo "  nmcli connection"
+  echo ""
+  echo -e "${BOLD}═══════════════════════════════════════════════════════════${NC}"
+  echo ""
+}
+
+# ---------------------------------------------------------------------------
+# Mode 1: Manual .nmconnection generation + rsync
+# ---------------------------------------------------------------------------
+setup_manual_wifi() {
+  echo ""
+  echo -e "${CYAN}=== Manual WiFi Configuration ===${NC}"
+  echo ""
+
+  ensure_sshpass
+  echo ""
+
+  prompt wifi_ssid "WiFi SSID / Network name"
+  prompt_secret wifi_psk "WiFi Password"
+  echo ""
+  prompt pi_hostname "Pi hostname (e.g. oncidiumhallkotakemuning)"
+  echo ""
+  prompt_secret pi_pass "Pi SSH password"
+
+  local pi_user="pi"
+
+  # Generate UUID
+  if command -v uuidgen &>/dev/null; then
+    conn_uuid="$(uuidgen)"
+  elif command -v python3 &>/dev/null; then
+    conn_uuid="$(python3 -c 'import uuid; print(uuid.uuid4())')"
+  else
+    conn_uuid="$(cat /proc/sys/kernel/random/uuid 2>/dev/null || openssl rand -hex 16 | sed 's/\(.\{8\}\)\(.\{4\}\)\(.\{4\}\)\(.\{4\}\)\(.\{12\}\)/\1-\2-\3-\4-\5/')"
+  fi
+  conn_uuid="$(echo "$conn_uuid" | tr '[:upper:]' '[:lower:]')"
+
+  # Sanitize filename
+  file_name="${wifi_ssid// /_}.nmconnection"
+
+  # Build the .nmconnection content
+  cat > "$file_name" <<EOF
+[connection]
+id=${wifi_ssid}
+uuid=${conn_uuid}
+type=wifi
+autoconnect=true
+
+[wifi]
+mode=infrastructure
+ssid=${wifi_ssid}
+
+[wifi-security]
+auth-alg=open
+key-mgmt=wpa-psk
+psk=${wifi_psk}
+
+[ipv4]
+method=auto
+
+[ipv6]
+addr-gen-mode=default
+method=auto
+
+[proxy]
+EOF
+
+  success "Generated ${file_name}"
+  info "UUID: ${conn_uuid}"
+  echo ""
+
+  # --- rsync to the Pi ---
+  local rsync_target="${pi_user}@${pi_hostname}.local"
+  local remote_path="/etc/NetworkManager/system-connections/${file_name}"
+
+  info "Rsyncing ${file_name} to ${rsync_target}:${remote_path}..."
+
+  if command -v sshpass &>/dev/null; then
+    SSHPASS="$pi_pass" sshpass -e rsync -avz \
+      -e "ssh -o StrictHostKeyChecking=no" \
+      --protect-args "$file_name" \
+      "${rsync_target}:${remote_path}" \
+      --rsync-path="sudo rsync"
+  else
+    warn "sshpass not found — you will be prompted for the password."
+    rsync -avz \
+      -e "ssh -o StrictHostKeyChecking=no" \
+      --protect-args "$file_name" \
+      "${rsync_target}:${remote_path}" \
+      --rsync-path="sudo rsync"
+  fi
+
+  success "File transferred."
+  echo ""
+
+  # Set permissions and restart NetworkManager
+  info "Setting permissions and restarting NetworkManager on the Pi..."
+
+  local perm_cmds=(
+    "sudo chown root:root '${remote_path}'"
+    "sudo chmod 600 '${remote_path}'"
+    "sudo systemctl restart NetworkManager"
+  )
+
+  if command -v sshpass &>/dev/null; then
+    for cmd in "${perm_cmds[@]}"; do
+      SSHPASS="$pi_pass" sshpass -e ssh -o StrictHostKeyChecking=no "$rsync_target" "$cmd"
+    done
+  else
+    for cmd in "${perm_cmds[@]}"; do
+      ssh -o StrictHostKeyChecking=no "$rsync_target" "$cmd"
+    done
+  fi
+
+  success "Permissions set and NetworkManager restarted."
+  echo ""
+
+  # Verify
+  info "Verifying connection list on the Pi..."
+  if command -v sshpass &>/dev/null; then
+    SSHPASS="$pi_pass" sshpass -e ssh -o StrictHostKeyChecking=no "$rsync_target" "nmcli connection"
+  else
+    ssh -o StrictHostKeyChecking=no "$rsync_target" "nmcli connection"
+  fi
+
+  # Print next steps
+  print_next_steps "$pi_hostname" "$file_name"
+}
+
+# ---------------------------------------------------------------------------
+# Mode 2: Connect to available WiFi via nmcli (remote to Pi)
+# ---------------------------------------------------------------------------
+setup_available_wifi() {
+  echo ""
+  echo -e "${CYAN}=== Connect to Available WiFi ===${NC}"
+  echo ""
+
+  ensure_sshpass
+  echo ""
+
+  prompt pi_hostname "Pi hostname or IP (e.g. oncidiumhallkotakemuning.local)"
+  prompt_secret pi_pass "Pi SSH password"
+
+  local pi_user="pi"
+  local rsync_target="${pi_user}@${pi_hostname}"
+
+  # Rescan and list available networks
+  info "Scanning for available WiFi networks on the Pi..."
+  if command -v sshpass &>/dev/null; then
+    sshpass -p "$pi_pass" ssh -o StrictHostKeyChecking=no "$rsync_target" "sudo nmcli device wifi rescan" 2>/dev/null || true
+    sleep 2
+    sshpass -p "$pi_pass" ssh -o StrictHostKeyChecking=no "$rsync_target" "sudo nmcli device wifi list"
+  else
+    warn "sshpass not found — you will be prompted for the password."
+    ssh -o StrictHostKeyChecking=no "$rsync_target" "sudo nmcli device wifi rescan" 2>/dev/null || true
+    sleep 2
+    ssh -o StrictHostKeyChecking=no "$rsync_target" "sudo nmcli device wifi list"
+  fi
+
+  echo ""
+  prompt target_ssid "Enter the SSID to connect to"
+  prompt_secret target_psk "WiFi Password"
+  echo ""
+
+  # Handle SSIDs with spaces
+  if [[ "$target_ssid" == *" "* ]]; then
+    nmcli_ssid="\"${target_ssid}\""
+  else
+    nmcli_ssid="$target_ssid"
+  fi
+
+  info "Connecting to ${target_ssid}..."
+  if command -v sshpass &>/dev/null; then
+    sshpass -p "$pi_pass" ssh -o StrictHostKeyChecking=no "$rsync_target" "sudo nmcli device wifi connect ${nmcli_ssid} password ${target_psk}"
+  else
+    ssh -o StrictHostKeyChecking=no "$rsync_target" "sudo nmcli device wifi connect ${nmcli_ssid} password ${target_psk}"
+  fi
+
+  success "Connection command executed."
+  echo ""
+
+  # Verify
+  info "Verifying active connection..."
+  if command -v sshpass &>/dev/null; then
+    sshpass -p "$pi_pass" ssh -o StrictHostKeyChecking=no "$rsync_target" "nmcli -t -f NAME,DEVICE connection show --active | grep wlan" \
+      || warn "Could not verify. Check manually: nmcli connection show --active"
+  else
+    ssh -o StrictHostKeyChecking=no "$rsync_target" "nmcli -t -f NAME,DEVICE connection show --active | grep wlan" \
+      || warn "Could not verify. Check manually: nmcli connection show --active"
+  fi
+
+  echo ""
+
+  # Print next steps
+  print_next_steps "$pi_hostname" ""
+}
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+main() {
+  echo ""
+  echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
+  echo -e "${CYAN}║         ${NC}${GREEN}Raspberry Pi WiFi Setup Helper${NC}${CYAN}                  ║${NC}"
+  echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
+  echo ""
+  echo "What would you like to do?"
+  echo ""
+  echo "  1) Manual WiFi      — Generate .nmconnection from SSID & password, rsync to Pi"
+  echo "  2) Available WiFi   — Connect Pi to a discoverable network via nmcli"
+  echo "  3) Exit"
+  echo ""
+
+  prompt choice "Select option (1-3)" "1"
+
+  case "$choice" in
+    1) setup_manual_wifi ;;
+    2) setup_available_wifi ;;
+    3) info "Exiting."; exit 0 ;;
+    *) error "Invalid option."; exit 1 ;;
+  esac
+}
+
+main "$@"

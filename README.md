@@ -66,6 +66,8 @@ dotfiles/
 ├── Makefile         # make shortcuts (bootstrap, update, clean, status, lint/format)
 ├── README.md        # documentation
 ├── bin/             # personal scripts (symlinked into ~/bin)
+│   ├── sinar-pi-setup       # build + package sinarclient tarball
+│   └── sinar-pi-wifi-setup  # wifi setup for Pi (nmconnection + rsync)
 ├── git/             # git configs (.gitconfig etc.)
 ├── install.sh       # bootstrap script (runs stow, used by make)
 ├── nvim/            # neovim configs (.config/nvim/init.lua + lua modules)
