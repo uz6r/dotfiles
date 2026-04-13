@@ -46,7 +46,7 @@
 
 | Phase | Goal | Requirements | Success Criteria |
 |-------|------|--------------|------------------|
-| 1 | Platform Foundation | 14 | Platform detection + aliases work on both |
+| 1 | Platform Foundation | Complete    | 2026-04-13 |
 | 2 | Scripts & Docs | 8 | install.sh + README complete |
 
 ---
