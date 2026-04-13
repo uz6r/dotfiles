@@ -1,68 +1,89 @@
-# Architecture
+# ARCHITECTURE.md — System Design & Patterns
 
-## Pattern: Dotfiles as Infrastructure-as-Code
+**Focus:** Architecture pattern, layers, data flow, abstractions, and entry points
 
-This repository uses GNU Stow for symlink-based dotfile management. Each subdirectory represents a package that gets symlinked to `$HOME`.
+## Architecture Pattern
+
+**Configuration as Code** — Dotfiles managed via GNU stow (symlink-based deployment)
+
+```
+dotfiles/          →  Source (stow packages)
+    ├── zsh/       →  .zshrc
+    ├── git/      →  .gitconfig
+    ├── nvim/     →  .config/nvim/
+    ├── bin/      →  ~/bin/
+    └── tmux/     →  .tmux.conf
+
+$HOME/             →  Target (symlinks created by stow)
+```
+
+## Layers
+
+1. **Bootstrap Layer** (`install.sh`, `Makefile`)
+   - Detects platform (Darwin/Linux)
+   - Installs dependencies (stow, homebrew)
+   - Runs stow to create symlinks
+
+2. **Shell Layer** (`.zshrc`)
+   - Platform detection
+   - PATH configuration
+   - Aliases and functions
+   - Plugin loading (oh-my-zsh)
+
+3. **Tool Layer** (git, nvim, tmux configs)
+   - Tool-specific configuration
+   - Loaded by respective tools
 
 ## Entry Points
 
-| Entry Point | Purpose |
-|-------------|---------|
-| `Makefile` | Primary orchestration - bootstrap, lint, format, CI |
-| `install.sh` | Bootstrap script - installs stow, creates symlinks |
-| `.github/workflows/ci.yml` | CI pipeline |
+| Entry Point | Trigger | Action |
+|-------------|---------|--------|
+| `install.sh` | `make bootstrap` | Install deps, run stow |
+| `.zshrc` | Shell startup | Load all shell config |
+| `init.lua` | Neovim startup | Load plugins and settings |
+| `.tmux.conf` | tmux startup | Configure terminal |
 
 ## Data Flow
 
 ```
 User runs: make bootstrap
     ↓
-install.sh checks for stow → installs if missing
+install.sh executes
     ↓
-stow -R -t $HOME zsh git nvim bin tmux
+1. Platform detection (uname -s)
+2. Homebrew install (if needed)
+3. stow install (if needed)
+4. Backup existing files
+5. stow creates symlinks
+6. git hooks configured
+
+User starts shell:
     ↓
-Creates symlinks: ~/.zshrc → dotfiles/zsh/.zshrc
-                   ~/.gitconfig → dotfiles/git/.gitconfig
-                   ~/.config/nvim → dotfiles/nvim/.config/nvim
-                   ~/bin/* → dotfiles/bin/*
-                   ~/.tmux.conf → dotfiles/tmux/.tmux.conf
+.zshrc loads
+    ↓
+1. oh-my-zsh base
+2. Platform detection (IS_MACOS, IS_LINUX)
+3. PATH setup (homebrew paths)
+4. Aliases (platform-aware)
+5. Functions (killport, localdev, etc.)
+6. pnpm/nvm/optional plugins
+7. Local overrides (.zshrc.local)
 ```
 
-## Layer Separation
+## Key Abstractions
 
-1. **Bootstrap Layer** - `Makefile`, `install.sh`
-2. **Config Layer** - Individual tool configs (zsh, git, nvim, tmux)
-3. **Script Layer** - `bin/` - Executable scripts
-4. **CI Layer** - `.github/workflows/ci.yml`, `.githooks/`
+| Abstraction | Location | Purpose |
+|-------------|----------|---------|
+| `is_darwin()` | `.zshrc:49` | Check if macOS |
+| `is_linux()` | `.zshrc:50` | Check if Linux |
+| `IS_MACOS` | `.zshrc:37` | Export for scripts |
+| `IS_LINUX` | `.zshrc:38` | Export for scripts |
+| `HOMEBREW_PREFIX` | `.zshrc:64-71` | Platform-specific path |
+| `killport()` | `.zshrc:143` | Cross-platform port killing |
+| `localdev()` | `.zshrc:155` | Courtsite multi-repo setup |
 
-## Abstractions
+## Cross-Platform Patterns
 
-- **`Makefile`** - Abstracts package manager differences, provides consistent commands
-- **Stow** - Abstracts symlink creation, allows per-package management
-- **Template configs** - `.zshrc.local`, `.gitconfig.local` for machine-specific overrides
-
-## Configuration Loading Order
-
-### Zsh
-```
-~/.zshrc (main)
-  → Oh My Zsh base
-  → Custom aliases/functions
-  → p10k theme (if exists)
-  → Optional plugins
-  → ~/.zshrc.local (machine-specific)
-```
-
-### Git
-```
-~/.gitconfig
-  → ~/.gitconfig.local (machine-specific, via include)
-```
-
-### Neovim
-```
-~/.config/nvim/init.lua
-  → Lazy.nvim bootstrap
-  → Plugin configuration
-  → gruvbox theme
-```
+- Platform detection via `uname -s`
+- Conditional aliases based on `$IS_MACOS` / `$IS_LINUX`
+- Tool fallbacks (xclip vs pbcopy, xdg-open vs open)

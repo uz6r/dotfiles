@@ -1,60 +1,76 @@
-# Structure
+# STRUCTURE.md — Directory Layout
 
-## Directory Layout
+**Focus:** Directory structure, key locations, and naming conventions
+
+## Directory Structure
 
 ```
 dotfiles/
-├── .github/workflows/ci.yml   # GitHub Actions CI
-├── .githooks/pre-commit        # Pre-commit hook
-├── .editorconfig               # Editor config
-├── .gitignore                  # Git ignore patterns
-├── .luacheckrc                 # Lua linting config
-├── .yamllint.yaml              # YAML linting config
-├── README.md                   # Documentation
-├── LICENSE                     # MIT License
-├── Makefile                    # Task runner
-├── install.sh                 # Bootstrap script
-├── bin/
-│   └── sinar-pi-setup          # Sinar Pi deployment script
-├── git/
-│   └── .gitconfig              # Git configuration
-├── nvim/
-│   └── .config/nvim/
-│       ├── init.lua            # Neovim main config
-│       └── lazy-lock.json      # Plugin lock file
-├── tmux/
-│   └── .tmux.conf              # Tmux configuration
-└── zsh/
-    ├── .zshrc                  # Zsh configuration
-    └── .p10k.zsh               # Powerlevel10k theme
+├── Makefile              # Task automation (bootstrap, lint, format)
+├── install.sh            # Bootstrap script
+├── README.md            # Documentation
+├── LICENSE              # MIT license
+├── .gitignore           # Git ignore patterns
+├── .editorconfig        # Editor config
+├── .luacheckrc          # Lua linting config
+├── .yamllint.yaml       # YAML linting config
+├── .github/
+│   └── workflows/
+│       └── ci.yml       # GitHub Actions CI
+├── .githooks/
+│   └── pre-commit       # Pre-commit hook
+├── .planning/           # GSD planning docs (not stowed)
+│   ├── config.json
+│   ├── PROJECT.md
+│   ├── REQUIREMENTS.md
+│   ├── ROADMAP.md
+│   ├── STATE.md
+│   ├── research/
+│   ├── phases/
+│   └── codebase/
+├── zsh/                 # → ~/.zshrc
+│   ├── .zshrc           # Main shell config
+│   └── .p10k.zsh        # Powerlevel10k config
+├── git/                 # → ~/.gitconfig
+│   └── .gitconfig       # Git configuration
+├── nvim/                # → ~/.config/nvim/
+│   └── .config/
+│       └── nvim/
+│           ├── init.lua # Neovim config
+│           └── lazy-lock.json
+├── bin/                 # → ~/bin/
+│   ├── sinar-pi-setup       # Build sinarclient tarball
+│   └── sinar-pi-wifi-setup  # Pi wifi setup
+├── tmux/                # → ~/.tmux.conf
+│   └── .tmux.conf       # tmux config
+└── scripts/             # Utility scripts (not symlinked)
+    └── update-migration-pr
 ```
 
 ## Key Locations
 
-| File | Purpose |
+| Path | Purpose |
 |------|---------|
-| `Makefile` | All tasks: bootstrap, update, clean, status, lint, format, ci-check |
-| `install.sh` | Stow-based bootstrap - creates symlinks |
-| `zsh/.zshrc` | Main shell config - 346 lines of aliases, functions, paths |
-| `nvim/.config/nvim/init.lua` | Neovim config - 410 lines, lazy.nvim, plugins, keymaps |
-| `tmux/.tmux.conf` | Tmux config - 67 lines, key bindings, status bar |
-| `git/.gitconfig` | Git config - aliases, merge tools, editor |
-| `.github/workflows/ci.yml` | CI pipeline - runs make format + yamllint + diff check |
-| `.githooks/pre-commit` | Local git hooks |
-| `bin/sinar-pi-setup` | Bash script for Sinar Pi device setup |
+| `zsh/.zshrc` | Main shell config (415 lines) |
+| `nvim/.config/nvim/init.lua` | Neovim config (464 lines) |
+| `git/.gitconfig` | Git config (63 lines) |
+| `tmux/.tmux.conf` | tmux config (67 lines) |
+| `bin/` | Personal scripts symlinked to `~/bin` |
+| `.planning/` | Project planning docs (excluded from stow) |
 
 ## Naming Conventions
 
-- **Config files**: Hidden files (prefixed with `.`) in home directory after symlinking
-- **Directories**: Lowercase, descriptive (zsh, git, nvim, tmux, bin)
-- **Scripts**: Descriptive names, lowercase with hyphens (sinar-pi-setup)
-- **Make targets**: Lowercase, descriptive (bootstrap, update, clean, lint, format)
+- **Directories**: lowercase, hyphenated (e.g., `bin/`, `zsh/`)
+- **Config files**: prefixed with `.` (e.g., `.zshrc`, `.gitconfig`)
+- **Scripts**: lowercase, hyphenated (e.g., `sinar-pi-setup`)
+- **Stow packages**: match target filename (e.g., `zsh/` → `.zshrc`)
 
-## Symlink Targets
+## Stow Packages
 
-When stow runs, it creates these symlinks:
-- `~/.zshrc` → `dotfiles/zsh/.zshrc`
-- `~/.gitconfig` → `dotfiles/git/.gitconfig`
-- `~/.config/nvim/` → `dotfiles/nvim/.config/nvim/`
-- `~/.tmux.conf` → `dotfiles/tmux/.tmux.conf`
-- `~/bin/*` → `dotfiles/bin/*`
+| Package | Target | Source Files |
+|---------|--------|--------------|
+| `zsh/` | `$HOME/.zshrc` | `.zshrc`, `.p10k.zsh` |
+| `git/` | `$HOME/.gitconfig` | `.gitconfig` |
+| `nvim/` | `$HOME/.config/nvim/` | `init.lua`, lazy config |
+| `bin/` | `$HOME/bin/` | Scripts |
+| `tmux/` | `$HOME/.tmux.conf` | `.tmux.conf` |

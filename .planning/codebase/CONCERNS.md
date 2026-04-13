@@ -1,73 +1,69 @@
-# Concerns
+# CONCERNS.md — Technical Debt & Issues
 
-## Technical Debt
-
-### Medium Priority
-
-1. **No plugin version pinning in Neovim** - `init.lua` uses `lazy.nvim` without specific versions, relying on default branch/branch=stable. Could cause unexpected updates.
-
-2. **Scripts without tests** - `bin/sinar-pi-setup` is a 144-line script with no test coverage. Complex logic for config creation and packaging.
-
-3. **Hardcoded paths** - Many configs have hardcoded paths (e.g., `${COURTSITE_DIR:-$HOME/Courtsite}`) that assume specific directory structure.
-
-### Low Priority
-
-4. **No backup verification** - `make status` checks symlinks but doesn't verify backed-up files are still accessible.
-
-5. **CI installs from scratch** - GitHub Actions installs all tools every run, could be slower than caching.
+**Focus:** Known issues, tech debt, security concerns, and fragile areas
 
 ## Known Issues
 
-### Potential Issues
+### 1. No Actual Tests
+- **Severity:** Low
+- **Issue:** No automated test suite for dotfiles functionality
+- **Mitigation:** CI runs formatters/linters, manual validation via `make status`
 
-1. **Lazy.nvim GitHub rate limits** - Bootstrap clones lazy.nvim from GitHub; could fail if rate-limited (rare).
+### 2. Courtsite-Specific Aliases
+- **Severity:** Low
+- **Issue:** `.zshrc` contains Courtsite-specific aliases (`core`, `konsol`, `pelanggan`, etc.)
+- **Impact:** Pollutes shell on non-Courtsite machines
+- **Mitigation:** Could be moved to `.zshrc.local`
 
-2. **p10k instant prompt caching** - Uses XDG_CACHE_HOME; if cache is corrupted, prompt may break.
+### 3. Localdev() Function is Linux-Only
+- **Severity:** Low
+- **Issue:** `localdev()` function wrapped in `if is_linux` but references Courstie paths
+- **Location:** `.zshrc:154-184`
+- **Impact:** Breaks on macOS if called
 
-3. **fzf integration** - `.zshrc` sources `~/.fzf.zsh` if it exists; fzf not in dotfiles, so optional.
-
-4. **Oh My Zsh updates** - `.zshrc` loads from `$HOME/.oh-my-zsh` - if OMZ updates break, shell may not load.
-
-### Configuration Conflicts
-
-1. **Neovim lazy-lock.json** - Tracked in git, but plugin versions determined by lazy.nvim defaults at install time.
-
-2. **Machine-specific overrides** - `.zshrc.local` and `.gitconfig.local` are not tracked, making machine config invisible to version control.
+### 4. Hard-coded Paths
+- **Severity:** Low
+- **Issue:** Some paths hardcoded (e.g., `${DOTFILES_DIR:-$HOME/uz6r/dotfiles}`)
+- **Impact:** Assumes specific directory structure
 
 ## Security Concerns
 
-### Low Risk
+### 1. GitHub SSH URLs
+- **Severity:** Info
+- **Location:** `.gitconfig:62-63`
+- **Issue:** Rewrites HTTPS URLs to SSH (`git@github.com:`)
+- **Note:** Intended behavior for SSH key authentication
 
-1. **Secrets in shell history** - `zsh/.zshrc` has no history protection; sensitive commands may be logged.
+### 2. No Secrets in Repo
+- **Severity:** Good
+- **Mitigation:** Machine-specific secrets in `.zshrc.local` and `.gitconfig.local` (gitignored)
 
-2. **API keys in environment** - If `~/.zshrc.local` contains secrets, they load on every shell start.
-
-3. **Git hooks are local** - `.githooks/pre-commit` is tracked but runs locally without review.
+### 3. Pre-commit Runs Formatters
+- **Severity:** Good
+- **Note:** Auto-formats on commit, prevents inconsistent code
 
 ## Fragile Areas
 
-### High Fragility
+| Area | Risk | Reason |
+|------|------|--------|
+| `.zshrc` (415 lines) | Medium | Large file, many conditional branches |
+| Platform detection | Low | Simple `uname -s` check |
+| Homebrew paths | Low | Well-tested by community |
+| lazy.nvim bootstrap | Low | Standard lazy.nvim pattern |
 
-1. **Install script dependencies** - `install.sh` assumes apt or brew; fails on other distributions (Arch, Fedora, etc.).
+## Tech Debt
 
-2. **Stow conflicts** - If target files exist and aren't symlinks, stow refuses to link (documented in install.sh but requires manual resolution).
+1. **Oh-my-zsh dependency** — Heavy, but standard
+2. **Powerlevel10k config** — Large `.p10k.zsh` file
+3. **Plugin count** — 20+ neovim plugins, some may be unused
 
-3. **Oh My Zsh plugin loading** - If custom plugins directory doesn't exist, auto-load fails silently.
+## Performance Concerns
 
-### Medium Fragility
+- **Shell startup time** — zsh with oh-my-zsh + plugins can be slow
+- **Lazy loading** — Some plugins (nvim-cmp, LSP) load on demand
 
-4. **Node.js/pnpm paths** - Complex path detection logic in `.zshrc:312-337` for pnpm could miss some install methods.
+## Areas for Improvement
 
-5. **NVM loading** - `.zshrc:301-307` loads NVM from standard location; non-standard installs won't load.
-
-## Performance Considerations
-
-- Lazy.nvim loads plugins on demand, should be fast
-- Treesitter installs parsers on first use
-- p10k instant prompt speeds up shell startup
-
-## Notes
-
-- This is a personal dotfiles repo - some trade-offs are acceptable for personal convenience
-- CI enforces formatting to prevent drift
-- Machine-specific overrides in `.local` files are intentional (keep secrets local)
+1. Consider moving Courtsite-specific aliases to local config
+2. Could add shell startup profiling to identify bottlenecks
+3. Consider removing unused plugins from neovim config

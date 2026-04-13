@@ -1,50 +1,39 @@
-# Integrations
+# INTEGRATIONS.md — External Services & APIs
 
-This dotfiles repository manages local development environment integrations.
+**Focus:** External APIs, databases, auth providers, and integrations
 
-## External Services & APIs
+## External Services
 
-No external API integrations in dotfiles themselves. However, the zsh config includes shortcuts for:
+| Service | Integration | Notes |
+|---------|-------------|-------|
+| GitHub | SSH URL rewriting (`git@github.com:`) | Configured in `.gitconfig` |
+| Homebrew | Package installation | Auto-installs on macOS/Linux |
+| oh-my-zsh | Shell framework | Loaded via `$ZSH/oh-my-zsh.sh` |
 
-| Service | Integration Type | Config Location |
-|---------|------------------|-----------------|
-| **yt-dlp** | YouTube/Video downloading | `zsh/.zshrc:265-273` |
+## Neovim Plugin Sources
 
-## Package Managers
+| Plugin | Source | Purpose |
+|--------|--------|---------|
+| lazy.nvim | github.com/folke/lazy.nvim | Plugin manager |
+| telescope.nvim | github.com/nvim-telescope/telescope.nvim | Fuzzy finder |
+| nvim-treesitter | github.com/nvim-treesitter/nvim-treesitter | Syntax highlighting |
+| nvim-tree.lua | github.com/nvim-tree/nvim-tree.lua | File explorer |
+| nvim-cmp | github.com/hrsh7th/nvim-cmp | Autocomplete |
+| nvim-lspconfig | github.com/neovim/nvim-lspconfig | LSP support |
+| toggleterm.nvim | github.com/akinsho/toggleterm.nvim | Terminal integration |
+| claudecode.nvim | github.com/coder/claudecode.nvim | Claude Code AI |
+| gemini-cli.nvim | github.com/jonroosevelt/gemini-cli.nvim | Gemini CLI |
+| ollama.nvim | github.com/nomnivore/ollama.nvim | Ollama local AI |
 
-| Manager | Purpose | Config |
-|---------|---------|--------|
-| **apt** | Debian/Ubuntu packages | `Makefile`, `install.sh` |
-| **brew** | macOS packages | `Makefile`, `install.sh` |
-| **npm** | Node tools (prettier) | `Makefile` |
-| **Go** | Go tools (shfmt) | `Makefile` |
-| **Cargo** | Rust tools (stylua) | `Makefile` |
-| **Luarocks** | Lua tools (luacheck) | `Makefile` |
-| **pnpm** | Node package manager | `zsh/.zshrc:312-337` |
+## Optional External Tools
 
-## Development Frameworks
+| Tool | Used By | Notes |
+|------|---------|-------|
+| Docker | `d`, `dc` aliases | Docker CLI shortcuts |
+| pnpm | Node.js projects | Package management |
+| nvm | Node version manager | Auto-loaded in `.zshrc` |
+| fzf | Fuzzy finder | Optional, sourced if installed |
 
-Configured but external:
-- **Neovim** - Editor (not a framework, but configured with LSP, treesitter, completion)
-- **Lazy.nvim** - Plugin manager
-- **Mason** - LSP/DAP/Linter installer
+## No Direct API Integrations
 
-## Database Integrations
-
-None in dotfiles directly. The `zsh/.zshrc` includes shortcuts to project directories that may contain database configs.
-
-## Auth Providers
-
-None directly in dotfiles. Machine-specific auth should be in:
-- `~/.zshrc.local` - Shell overrides
-- `~/.gitconfig.local` - Git overrides
-
-## Webhooks
-
-None configured in dotfiles.
-
-## Notes
-
-- All machine-specific secrets should go in `~/.zshrc.local` or `~/.gitconfig.local`
-- The `git/.gitconfig` includes `~/.gitconfig.local` for overrides
-- The `zsh/.zshrc` sources `~/.zshrc.local` for machine-specific settings
+This is a dotfiles repository — no external APIs are called directly. All integrations are through installed tools and plugins.

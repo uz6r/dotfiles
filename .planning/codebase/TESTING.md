@@ -1,50 +1,62 @@
-# Testing
+# TESTING.md — Test Structure & Practices
 
-This dotfiles repository uses linting and formatting tools rather than traditional unit tests.
+**Focus:** Testing framework, structure, mocking, and coverage
 
-## Test Framework
+## Testing Approach
 
-**None** - This is a configuration repository, not an application.
+This is a dotfiles repository — no unit tests exist. Quality is maintained through:
 
-## Linting Tools
+| Method | Tool | Configuration |
+|--------|------|----------------|
+| Shell syntax validation | `zsh -n` | Makefile `lint` target |
+| Shell linting | `shellcheck` | Makefile `lint` target |
+| Shell formatting | `shfmt` | Makefile `format` target |
+| YAML linting | `yamllint` | `.yamllint.yaml` |
+| JSON validation | `jq` | Makefile `lint` target |
+| Lua linting | `luacheck` | `.luacheckrc` |
+| Lua formatting | `stylua` | Makefile `format` target |
 
-| Tool | File Types | Config Location |
-|------|------------|-----------------|
-| **shellcheck** | `.sh` scripts | `Makefile` |
-| **luacheck** | `.lua` (Neovim) | `.luacheckrc`, `Makefile` |
-| **yamllint** | `.yml`, `.yaml` | `.yamllint.yaml` |
-| **jq** | `.json` | `Makefile` |
-| **zsh -n** | `.zshrc` | `Makefile` |
+## CI Pipeline
 
-## Formatting Tools
+GitHub Actions (`.github/workflows/ci.yml`) runs:
 
-| Tool | File Types | Config Location |
-|------|------------|-----------------|
-| **shfmt** | Shell scripts | `Makefile` (indent: 2, ci) |
-| **stylua** | Lua | `Makefile` |
-| **prettier** | YAML, JSON, Markdown | `Makefile` |
-
-## Test Targets (Makefile)
-
-```makefile
-make lint        # Run linters only (no auto-fix)
-make format      # Lint + format (auto-fix)
-make ci-check    # Full CI pipeline (strict yamllint + diff check)
+```yaml
+make ci-check
 ```
 
-## CI Pipeline (`.github/workflows/ci.yml`)
+Which executes:
+1. `make format` — auto-fix all files
+2. `yamllint .` — strict YAML validation
+3. `git diff --exit-code` — fail if formatted files not committed
 
-1. Install dependencies (shellcheck, shfmt, yamllint, jq, lua5.4, luarocks, cargo)
-2. Install tools (luacheck via luarocks, stylua via cargo, prettier via npm)
-3. Run `make format`
-4. Run `yamllint .` (strict mode)
-5. Check for uncommitted changes (fails if diff exists)
+## Pre-Commit Hook
 
-## Coverage
+`.githooks/pre-commit` runs:
+- Formatters (shfmt, prettier, stylua)
+- Linters (shellcheck, yamllint, luacheck)
+- If changes detected, commit is blocked until formatted
 
-Not applicable - configuration files are validated through linting/formatting, not code coverage.
+## Manual Testing
 
-## Manual Validation
+| Command | Purpose |
+|---------|---------|
+| `make bootstrap` | Test stow symlink creation |
+| `make status` | Verify symlinks are valid |
+| `make lint` | Run all linters |
+| `make format` | Run formatters |
+| `make ci-check` | Simulate CI locally |
+| `zsh -n zsh/.zshrc` | Syntax check shell config |
 
-- `make status` - Verify symlinks are correct
-- `make bootstrap` - Test on fresh system (or VM)
+## No Test Frameworks
+
+- No Jest, Vitest, or similar
+- No pytest, unittest
+- Dotfiles are configuration, not application code
+
+## Validation Checklist
+
+Before committing:
+- [ ] `make ci-check` passes
+- [ ] `zsh -n zsh/.zshrc` passes
+- [ ] No new shellcheck warnings
+- [ ] All formatted files committed

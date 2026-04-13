@@ -1,59 +1,98 @@
-# Conventions
+# CONVENTIONS.md — Code Style & Patterns
 
-## Code Style
+**Focus:** Code style, naming conventions, patterns, and error handling
 
-### Shell Scripts (Bash/Zsh)
+## Shell Scripts (install.sh)
 
-- Use `#!/bin/sh` for portable scripts, `#!/usr/bin/env bash` for bash-specific
-- Use `set -e` for error handling
-- 2-space indentation in shfmt
-- Follow ShellCheck guidelines
+- Shebang: `#!/bin/sh` (POSIX-compatible)
+- Variable assignment: `var="value"` (no spaces around `=`)
+- Functions: `function_name() { ... }` (no `function` keyword)
+- Conditionals: `[ "$var" = "value" ]` (space required)
+- Error handling: `set -e` at top
 
-### Lua (Neovim)
+Example from `install.sh`:
+```sh
+#!/bin/sh
+set -e
 
-- Use tabs for indentation (converted by stylua)
-- Use `vim.` namespace for Neovim API
-- Use `require()` for module loading
+backup_dir="$HOME/dotfiles_backup"
+mkdir -p "$backup_dir"
 
-### YAML
+platform() {
+  uname -s
+}
 
-- 2-space indentation
-- Follow `.yamllint.yaml` strict rules in CI
+if [ "$(platform)" = "Darwin" ]; then
+  install_homebrew
+fi
+```
 
-## Naming Conventions
+## Zsh Configuration (.zshrc)
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Files | Lowercase, hyphens | `sinar-pi-setup`, `.zshrc` |
-| Directories | Lowercase | `zsh`, `nvim`, `bin` |
-| Make targets | Lowercase | `bootstrap`, `format`, `ci-check` |
-| Git aliases | Short, lowercase | `gs`, `ga`, `gc`, `gp` |
-| Zsh aliases | Lowercase, descriptive | `ll`, `dotfiles`, `dev` |
-| Zsh functions | Lowercase, camelCase | `mkcd`, `bak`, `killport`, `localdev`, `gql` |
-| Neovim keymaps | Descriptive | `<leader>w`, `<leader>q`, `<leader>ff` |
+- Comments: `# descriptive comment`
+- Booleans: `true`/`false` strings (`export IS_MACOS=false`)
+- Functions: `function_name() { ... }` or `name() { ... }`
+- Conditionals: `if is_darwin; then ... fi`
 
-## Patterns
+Key patterns:
+```zsh
+# Platform detection
+case "$(uname -s)" in
+  Darwin*) export IS_MACOS=true ;;
+  Linux*) export IS_LINUX=true ;;
+esac
 
-### Error Handling
-- Shell: `set -e` at script start
-- Lua: Use `vim.fn` for functions that can fail
+# Helper functions
+is_darwin() { [[ "$IS_MACOS" == "true" ]]; }
+is_linux() { [[ "$IS_LINUX" == "true" ]]; }
 
-### Conditional Loading
-- Zsh: Check if file exists before sourcing (e.g., `zsh-autosuggestions`, `.zshrc.local`)
-- Neovim: Use `vim.loop.fs_stat()` for file existence
+# Conditional aliases
+if is_darwin; then
+  alias ll='ls -lahG'
+else
+  alias ll='ls -lah --color=auto'
+fi
+```
 
-### Modular Configuration
-- Neovim: Use lazy.nvim with plugin specs
-- Zsh: Group related configs (aliases, functions, paths)
+## Neovim Lua (init.lua)
 
-## Keymap Patterns (Neovim)
+- Style: 2-space indentation
+- Keymaps: `vim.keymap.set(mode, key, rhs, opts)`
+- Options: `vim.opt.number = true` or `vim.opt_local`
+- Plugins: `require("lazy").setup({...})`
 
-- `<leader>` is space
-- Navigation: `C-h/j/k/l` for window movement
-- Files: `ff` (find files), `fg` (live grep), `fb` (buffers)
-- Git: `gs` (status), `gp` (push), `gg` (fugitive)
-- Terminal: `gt` (toggle term), `ao` (open AI)
+Example:
+```lua
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.keymap.set("n", "<leader>w", ":w<cr>")
+require("lazy").setup({
+  { "nvim-telescope/telescope.nvim" },
+})
+```
 
-## Tool Versions
+## Git Configuration (.gitconfig)
 
-See `STACK.md` for specific tool versions.
+- INI format with `[section]` headers
+- Indentation: tabs
+- Commands use abbreviations (st, ci, br, co)
+
+## Tmux Configuration (.tmux.conf)
+
+- Directives: `set -g option value`
+- Key bindings: `bind key command`
+- Comments: `# comment`
+
+## Error Handling
+
+| File | Approach |
+|------|----------|
+| `install.sh` | `set -e` (exit on error) |
+| `.zshrc` | Graceful fallbacks (`command -v X >/dev/null`) |
+| `init.lua` | Try/catch via `pcall`, plugin lazy-loading |
+| Makefile | `|| true` for optional tools |
+
+## No Hard-Coded Secrets
+
+- Machine-specific values in `.zshrc.local` and `.gitconfig.local`
+- These files are gitignored and not in the repo
