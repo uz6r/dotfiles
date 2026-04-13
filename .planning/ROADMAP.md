@@ -32,7 +32,7 @@
 - SCRI-01, SCRI-02, SCRI-03 (Scripts)
 - DOCS-01, DOCS-02, DOCS-03 (Documentation)
 
-### Success Criteria
+### Success Criteria ✓ Complete
 1. `install.sh` installs Homebrew if not present (both platforms)
 2. `install.sh` runs stow and links configs on both platforms
 3. `install.sh` works non-interactively with flags
@@ -45,9 +45,15 @@
 ## Phase Summary
 
 | Phase | Goal | Requirements | Success Criteria |
-|-------|------|--------------|------------------|
-| 1 | Platform Foundation | Complete    | 2026-04-13 |
-| 2 | Scripts & Docs | 8 | install.sh + README complete |
+|-------|------|--------------|-------------------|
+| 1 | Platform Foundation | 14/14 ✓ | 2026-04-13 |
+| 2 | Scripts & Docs | 8/8 ✓ | 2026-04-13 |
+
+---
+
+## Milestone: Cross-Platform Ready ✓
+
+**Status:** Complete (2026-04-13)
 
 ---
 
@@ -62,4 +68,14 @@
 - All current functionality preserved on Linux
 
 ---
-*Roadmap created: 2026-04-13*
+
+*Roadmap created: 2026-04-13 | Updated: 2026-04-13*
+
+---
+
+## Future Improvements
+
+- Move Courtsite-specific aliases to `.zshrc.local`
+- Add shell startup profiling
+- Audit unused neovim plugins
+- Add automated dotfiles tests
