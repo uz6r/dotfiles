@@ -4,6 +4,36 @@ set -e
 backup_dir="$HOME/dotfiles_backup"
 mkdir -p "$backup_dir"
 
+platform() {
+  uname -s
+}
+
+install_homebrew() {
+  if command -v brew >/dev/null 2>&1; then
+    echo "✅ homebrew already installed"
+    return 0
+  fi
+
+  echo "installing homebrew..."
+  if [ "$(platform)" = "Darwin" ]; then
+    CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  elif [ "$(platform)" = "Linux" ]; then
+    CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+  echo "✅ homebrew installed"
+}
+
+if [ "$(platform)" = "Darwin" ]; then
+  install_homebrew
+elif [ "$(platform)" = "Linux" ]; then
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "linuxbrew not found — installing..."
+    install_homebrew
+  else
+    echo "✅ linuxbrew already installed"
+  fi
+fi
+
 echo "checking for stow"
 if ! command -v stow >/dev/null 2>&1; then
   echo "installing stow..."

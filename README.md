@@ -10,11 +10,39 @@ because my dev environment shouldn’t be a snowflake. one clone + `make bootstr
 
 ## requirements
 
-make sure the following are installed first:
-
 - **git** → clone this repo
 - **stow** → symlink configs
 - **make** → run the workflow
+
+### macOS
+
+Install [Homebrew](https://brew.sh):
+
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+### Linux
+
+Install [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux):
+
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Add to your shell init (`.zshrc`):
+
+```sh
+export PATH="$HOME/.linuxbrew/bin:$PATH"
+eval "$(~/.linuxbrew/bin/brew shellenv)"
+```
+
+### Tool equivalents
+
+| Task                 | macOS     | Linux                    |
+| -------------------- | --------- | ------------------------ |
+| Copy to clipboard    | `pbcopy`  | `xclip` or `wl-copy`     |
+| Paste from clipboard | `pbpaste` | `xclip -o` or `wl-paste` |
 
 for linting/formatting (`make setup` will install most automatically):
 
