@@ -30,9 +30,54 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # ---------------------------------
-# fix PATH (system + npm + pnpm)
+# platform detection (Darwin/Linux)
 # ---------------------------------
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$HOME/uz6r/dotfiles/scripts:$PATH"
+# IS_MACOS, IS_LINUX: boolean exports for conditional logic
+# is_darwin(), is_linux(): helper functions
+export IS_MACOS=false
+export IS_LINUX=false
+
+case "$(uname -s)" in
+  Darwin*)
+    export IS_MACOS=true
+    ;;
+  Linux*)
+    export IS_LINUX=true
+    ;;
+esac
+
+is_darwin() { [[ "$IS_MACOS" == "true" ]]; }
+is_linux() { [[ "$IS_LINUX" == "true" ]]; }
+
+# ---------------------------------
+# PATH configuration (cross-platform)
+# ---------------------------------
+
+# System paths
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+# Homebrew (works on both macOS and Linux)
+if is_darwin; then
+  # macOS Homebrew
+  if [[ "$(uname -m)" == "arm64" ]]; then
+    # Apple Silicon
+    export HOMEBREW_PREFIX="/opt/homebrew"
+  else
+    # Intel
+    export HOMEBREW_PREFIX="/usr/local"
+  fi
+elif command -v brew >/dev/null 2>&1; then
+  # Linuxbrew
+  export HOMEBREW_PREFIX="$(brew --prefix)"
+fi
+
+# Add Homebrew to PATH if available
+if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/bin" ]; then
+  export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
+fi
+
+# User local paths
+export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$HOME/uz6r/dotfiles/scripts:$PATH"
 
 # ---------------------------------
 # history settings
@@ -55,9 +100,13 @@ setopt autopushd      # make cd push old dir onto stack
 setopt pushdignoredups # don't push duplicates
 
 # ---------------------------------
-# generic aliases
+# generic aliases (cross-platform)
 # ---------------------------------
-alias ll='ls -lah --color=auto'
+if is_darwin; then
+  alias ll='ls -lahG'
+else
+  alias ll='ls -lah --color=auto'
+fi
 alias ..='cd ..'
 alias ...='cd ../..'
 alias dotfiles="cd ${DOTFILES_DIR:-$HOME/uz6r/dotfiles}"
@@ -90,7 +139,7 @@ mkcd() { mkdir -p "$1" && cd "$1"; }
 # backup a file
 bak() { cp "$1"{,.bak}; }
 
-# kill process on port
+# kill process on port (works on both macOS and Linux via lsof)
 killport() {
   local pid=$(lsof -ti:$1)
   if [ -z "$pid" ]; then
@@ -101,6 +150,8 @@ killport() {
   echo "killed process $pid on port $1"
 }
 
+# Courtsite local dev (Linux only - Courtsite is Linux-only project)
+if is_linux; then
 localdev() {
   local base_dir="${COURTSITE_DIR:-$HOME/Courtsite}/enjin"
   dir1="$base_dir/enjin-proksi"
@@ -130,6 +181,7 @@ localdev() {
     start_tmux_layout
   fi
 }
+fi  # end Linux-only
 
 
 # ---------------------------------
@@ -138,12 +190,28 @@ localdev() {
 alias zshrc='${EDITOR:-code} "$HOME/.zshrc"'
 alias reload='source "$HOME/.zshrc" && echo "✅ .zshrc reloaded"'
 alias myip='curl -s ifconfig.me && echo'
-alias localip='ip addr show | grep "inet " | grep -v 127.0.0.1'
-alias ports='netstat -tulanp'
+alias localip='if is_darwin; then ifconfig | grep "inet " | grep -v 127.0.0.1; else ip addr show | grep "inet " | grep -v 127.0.0.1; fi'
+alias ports='lsof -i -P'
 
-# clipboard (Linux)
-alias pbcopy='xclip -selection clipboard'
-alias pbpaste='xclip -selection clipboard -o'
+# clipboard (cross-platform)
+if is_darwin; then
+  alias copy='pbcopy'
+  alias paste='pbpaste'
+else
+  if command -v xclip >/dev/null 2>&1; then
+    alias copy='xclip -selection clipboard -i'
+    alias paste='xclip -selection clipboard -o'
+  fi
+fi
+
+# open command (cross-platform)
+if is_darwin; then
+  alias open='open'
+else
+  if command -v xdg-open >/dev/null 2>&1; then
+    alias open='xdg-open'
+  fi
+fi
 
 # ---------------------------------
 # pnpm shortcuts
