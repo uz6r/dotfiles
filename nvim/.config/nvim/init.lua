@@ -141,10 +141,19 @@ vim.keymap.set("n", "<leader>fh", ":Telescope help_tags<cr>")
 
 -- AI keymaps
 vim.keymap.set("n", "<leader>ao", "<cmd>ToggleTerm direction=float<cr>", { silent = true })
-vim.keymap.set("n", "<leader>ac", "<cmd>ClaudeChat<cr>", { silent = true })
-vim.keymap.set("n", "<leader>an", "<cmd>ClaudeChatNew<cr>", { silent = true })
-vim.keymap.set("v", "<leader>as", ":ClaudeChatSendSelection<cr>", { silent = true })
-vim.keymap.set("n", "<leader>oll", "<cmd>Ollama<cr>", { silent = true })
+vim.keymap.set("n", "<leader>ag", "<cmd>Gemini<cr>", { silent = true })
+vim.keymap.set("n", "<leader>al", "<cmd>Ollama<cr>", { silent = true })
+
+local function open_claude_ollama()
+	local Terminal = require("toggleterm.terminal").Terminal
+	local claude = Terminal:new({
+		cmd = "env ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY=ollama claude --model gemma4",
+		direction = "float",
+		float_opts = { border = "curved", width = 120, height = 35 },
+	})
+	claude:toggle()
+end
+vim.keymap.set("n", "<leader>aco", open_claude_ollama, { noremap = true, silent = true })
 
 -- bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -355,12 +364,31 @@ require("lazy").setup({
 		event = "VeryLazy",
 	},
 	{
-		"wtfox/claude-chat.nvim",
-		keys = { { "<leader>ac", "<cmd>ClaudeChat<cr>", desc = "claude: chat" } },
+		"coder/claudecode.nvim",
+		dependencies = { "folke/snacks.nvim" },
+		opts = {
+			terminal = {
+				split_side = "right",
+				split_width_percentage = 0.30,
+			},
+		},
+		config = true,
+		keys = {
+			{ "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "claude: toggle" },
+			{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "claude: focus" },
+			{ "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "claude: send selection" },
+			{ "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "claude: accept diff" },
+			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "claude: deny diff" },
+		},
+	},
+
+	-- Gemini CLI
+	{
+		"jonroosevelt/gemini-cli.nvim",
+		keys = { { "<leader>ag", "<cmd>Gemini<cr>", desc = "gemini: cli" } },
 		config = function()
-			require("claude-chat").setup({
-				split = "vsplit",
-				width = 0.5,
+			require("gemini").setup({
+				split_direction = "vertical",
 			})
 		end,
 	},

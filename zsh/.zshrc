@@ -60,7 +60,7 @@ setopt pushdignoredups # don't push duplicates
 alias ll='ls -lah --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
-alias dotfiles="code ${DOTFILES_DIR:-$HOME/uz6r/dotfiles}"
+alias dotfiles="cd ${DOTFILES_DIR:-$HOME/uz6r/dotfiles}"
 alias c.="code ."
 
 # directory stack navigation
