@@ -2,27 +2,21 @@
 
 ## v1.1 Shell Optimization (Shipped: 2026-04-14)
 
-**Phases completed:** 0 phases, 0 plans, 0 tasks
+**Phases:** 3 phases (Phases 3-5), 10 requirements
 
 **Key accomplishments:**
 
-- (none recorded)
+- Shell startup profiling script (`bin/profile-zsh` ~950ms timing)
+- Neovim plugin audit script (`bin/audit-nvim-plugins` 23 plugins)
+- Automated test suite (`make test` validates zsh, git, nvim)
 
 ---
 
-## v1.1 Shell Optimization (Current)
+## v1.0 Cross-Platform Compatibility (Shipped: 2026-04-13)
 
-**Started:** 2026-04-14
+**Phases:** 2 phases (Phases 1-2), 22 requirements
 
-Target features:
-
-- Shell startup profiling
-- Neovim plugin audit
-- Automated dotfiles tests
-
-## v1.0 Cross-Platform Compatibility
-
-**Completed:** 2026-04-13
+**Key accomplishments:**
 
 - Platform detection in zsh (.zshrc, Linux vs Darwin)
 - Homebrew path configuration (Apple Silicon, Intel, Linuxbrew)
@@ -31,4 +25,4 @@ Target features:
 - README documentation
 
 ---
-*Milestones created: 2026-04-14*
+*Milestones updated: 2026-04-14*
