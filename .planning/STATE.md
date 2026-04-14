@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Shell Optimization ✓
-status: unknown
-last_updated: "2026-04-14T06:47:35.519Z"
+status: complete
+last_updated: "2026-04-14T14:50:00.000Z"
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 3
+  total_plans: 10
+  completed_plans: 10
 ---
 
 # State
@@ -21,9 +21,12 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-14)
 
+**Core value:** Dotfiles that "just work" regardless of which OS I'm booted into
+**Current focus:** Milestone v1.1 complete — see .planning/milestones/
+
 ## Current Phase
 
-**Phase 5: Automated Tests** — Complete ✓
+**v1.1 Shell Optimization** — Complete ✓
 
 ## Progress
 
@@ -37,11 +40,12 @@ See: .planning/PROJECT.md (updated 2026-04-14)
 
 ## Recent Commits
 
-- `7596bbe` docs: start milestone v1.1 Shell Optimization
+- `5400436` chore: complete v1.1 milestone
+- `fe9082a` docs: add v1.1 milestone audit
 
 ## Next Action
 
-Milestone complete — all phases done ✓
+Start a new milestone with `/gsd-new-milestone`
 
 ---
 *State updated: 2026-04-14*
