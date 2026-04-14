@@ -1,10 +1,21 @@
 # Milestones
 
+## v1.1 Shell Optimization (Shipped: 2026-04-14)
+
+**Phases completed:** 0 phases, 0 plans, 0 tasks
+
+**Key accomplishments:**
+
+- (none recorded)
+
+---
+
 ## v1.1 Shell Optimization (Current)
 
 **Started:** 2026-04-14
 
 Target features:
+
 - Shell startup profiling
 - Neovim plugin audit
 - Automated dotfiles tests

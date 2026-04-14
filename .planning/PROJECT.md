@@ -20,27 +20,23 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 - ✓ Makefile with apt/brew detection — existing
 - ✓ Bootstrap script (install.sh) — existing
 - ✓ Cross-platform shell compatibility (v1.0) — platform detection, Homebrew paths, cross-platform aliases, install.sh, docs
-
-## Current Milestone: v1.1 Shell Optimization
-
-**Goal:** Profile shell startup, audit neovim plugins, add automated tests
-
-**Target features:**
-- Shell startup profiling to identify slow loads
-- Neovim plugin audit to find and remove unused plugins
-- Automated dotfiles tests
-
-### Active
-
-- [ ] Shell startup profiling to identify slow loads
-- [ ] Neovim plugin audit to find and remove unused plugins
-- [ ] Automated dotfiles tests
+- ✓ Shell startup profiling (v1.1) — `bin/profile-zsh` script
+- ✓ Neovim plugin audit (v1.1) — `bin/audit-nvim-plugins` script  
+- ✓ Automated dotfiles tests (v1.1) — `make test` validates zsh, git, nvim configs
 
 ### Out of Scope
 
 - [Windows WSL] — not using, no need
 - [Shell integration for iTerm2] — default terminal fine
 - [Brewfile generation] — manual brew install sufficient
+
+## Current State (v1.1 Shipped)
+
+**Shipped:** 2026-04-14
+
+- Shell profiling: `bin/profile-zsh` — measures startup time (~950ms), identifies slow components
+- Plugin audit: `bin/audit-nvim-plugins` — lists 23 plugins, identifies candidates for removal
+- Test suite: `make test` — validates zsh, git, nvim configs
 
 ## Context
 
@@ -51,16 +47,9 @@ Currently using Ubuntu on a desktop. Planning to get a MacBook and dual-boot. Ne
 - `git/` — .gitconfig
 - `nvim/` — .config/nvim/init.lua + lua modules
 - `tmux/` — .tmux.conf
-- `bin/` — sinar-pi-setup, sinar-pi-wifi-setup (project-specific)
-- `Makefile` — bootstrap, update, clean, status, lint/format
+- `bin/` — profile-zsh, audit-nvim-plugins, sinar-pi-setup, sinar-pi-wifi-setup
+- `Makefile` — bootstrap, update, clean, status, lint/format, test
 - `install.sh` — stow setup, git hooks
-
-**Platform-specific current issues:**
-- `xclip` alias (Linux only) — macOS uses `pbcopy`/`pbpaste`
-- `ip addr` for localip (Linux) — macOS uses `ifconfig`
-- `netstat -tulanp` flags (Linux) — macOS syntax differs
-- Homebrew paths differ between platforms
-- `localdev` function references Courtsite paths (can keep as-is, Linux-only project)
 
 ## Constraints
 
@@ -76,6 +65,13 @@ Currently using Ubuntu on a desktop. Planning to get a MacBook and dual-boot. Ne
 | Unified dotfiles with guards | Single source of truth, easier to maintain | ✓ Good |
 | Homebrew for macOS | Standard macOS package manager, Linux version available | ✓ Good |
 | Platform detection via `uname -s` | Reliable, no external dependencies | ✓ Good |
+| `make test` for validation | Simple, fast feedback | ✓ Good |
+
+## Next Milestone Goals
+
+- Lazy-load non-critical plugins based on profiling data
+- Cross-platform validation (test on macOS when available)
+- Test stow symlink creation
 
 ---
-*Last updated: 2026-04-14 after v1.0 complete, starting v1.1 Shell Optimization*
+*Last updated: 2026-04-14 after v1.1 milestone complete*
