@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Neovim Plugin Audit
+# Analyzes plugin usage and identifies potentially unused plugins
+
+set -e
+
+CONFIG_FILE="/home/uzer/uz6r/dotfiles/nvim/.config/nvim/init.lua"
+
+echo "=== Neovim Plugin Audit ==="
+echo ""
+
+echo "=== PLUGIN LIST ==="
+echo ""
+
+# Extract plugin names properly
+grep -oP '^\s+"?[a-zA-Z0-9_-]+/[a-zA-Z0-9_.-]+"?' "$CONFIG_FILE" 2>/dev/null | \
+  sed 's/.*"\([^"]*\)".*/\1/' | \
+  grep -v '^$' | sort -u | while read plugin; do
+  name=$(echo "$plugin" | sed 's/.*\///')
+  echo "  $plugin"
+  
+  # Check for config
+  if grep -q "require.*$name" "$CONFIG_FILE" 2>/dev/null; then
+    echo "    → Has config in init.lua"
+  fi
+done
+
+echo ""
+echo "=== ANALYSIS ==="
+echo ""
+echo "Plugins with config are actively configured."
+echo ""
+echo "To identify unused plugins:"
+echo "  1. Open nvim and run :Lazy"
+echo "  2. Check plugin load times with :lua print(vim.inspect(require('lazy').stats()))"
+echo "  3. Review :Lazy profilier output"
+echo "  4. Remove plugins you never use"
+echo ""
+echo "Common removable candidates:"
+echo "  - gemini-cli.nvim (AI tool, check if used)"
+echo "  - ollama.nvim (local LLM, check if used)"
+echo "  - claudecode.nvim (AI coding, check if used)"

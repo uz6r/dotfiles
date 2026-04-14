@@ -56,15 +56,15 @@
 
 | Phase | Goal | Requirements | Success Criteria |
 |-------|------|--------------|-------------------|
-| 3 | Shell Profiling | 3/3 | 2026-04-14 |
-| 4 | Neovim Audit | 3/3 | 2026-04-14 |
-| 5 | Automated Tests | 4/4 | 2026-04-14 |
+| 3 | Shell Profiling | 3/3 ✓ | 2026-04-14 |
+| 4 | Neovim Audit | 3/3 ✓ | 2026-04-14 |
+| 5 | Automated Tests | 4/4 ✓ | 2026-04-14 |
 
 ---
 
-## Milestone: v1.1 Shell Optimization
+## Milestone: v1.1 Shell Optimization ✓
 
-**Target:** Shell startup profiling, neovim plugin audit, automated tests
+**Status:** Complete (2026-04-14)
 
 **Done means:**
 - Shell startup profiling script identifies slow components

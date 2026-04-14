@@ -180,3 +180,32 @@ ci-check: ## run formatters + strict lint checks (used in CI)
 
 	@echo "→ checking for uncommitted diffs"
 	@git diff --exit-code || (echo "❌ run 'make format' locally before committing" && exit 1)
+
+# -------------------
+# test (dotfiles validation)
+# -------------------
+
+test: ## run all dotfiles validation tests
+	@echo "=== Running Dotfiles Tests ==="
+	@echo ""
+
+	@echo "→ Testing zsh config syntax"
+	@zsh -n zsh/.zshrc || { echo "❌ zsh/.zshrc has syntax errors"; exit 1; }
+	@echo "  ✅ zsh/.zshrc OK"
+	@[ -f zsh/.zshrc.local ] && zsh -n zsh/.zshrc.local || true
+	@[ -f zsh/.p10k.zsh ] && zsh -n zsh/.p10k.zsh || true
+
+	@echo "→ Testing git config syntax"
+	@git config --list --file git/.gitconfig >/dev/null || { echo "❌ git/.gitconfig has errors"; exit 1; }
+	@echo "  ✅ git/.gitconfig OK"
+
+	@echo "→ Testing Neovim config (headless)"
+	@if command -v nvim >/dev/null 2>&1; then \
+		nvim --headless +qa 2>/dev/null || { echo "❌ Neovim config has errors"; exit 1; }; \
+		echo "  ✅ Neovim config OK"; \
+	else \
+		echo "  ⚠️  nvim not found, skipping Neovim test"; \
+	fi
+
+	@echo ""
+	@echo "=== All tests passed ==="

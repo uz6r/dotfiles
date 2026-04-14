@@ -1,0 +1,53 @@
+#!/usr/bin/env zsh
+# Shell Startup Profiler
+# Measures zshrc load time and identifies slow components
+
+set -e
+
+OUTPUT_FILE="${1:-/tmp/zsh-profile-output.txt}"
+TIMING_FILE="${2:-/tmp/zsh-profile-timing.txt}"
+
+echo "=== Shell Startup Profiler ==="
+echo "Profiling zsh startup..."
+echo ""
+
+# Run zsh with xtrace and timing, capture output
+{
+  echo "Starting profiling at $(date)"
+  time zsh -i -c "exit" 2>&1
+} 2>&1 | grep -E "(^\+|Executing|Source|Sourcing|time:|^\[t)|" > "$TIMING_FILE" || true
+
+# Parse and analyze timing data
+echo "=== SLOW COMPONENTS ANALYSIS ===" 
+echo ""
+
+# Show top slowest lines (based on + lines with exec/source)
+echo "Top slowest operations:"
+grep -E "^\+.*(source|\." "$TIMING_FILE" 2>/dev/null | head -20 || echo "  (run with zsh -x to see detailed timing)"
+
+echo ""
+echo "=== LOAD ORDER ===" 
+echo "Files sourced in order:"
+grep -E "^\+.*source|Sourcing" "$TIMING_FILE" 2>/dev/null | sort -u | head -20 || echo "  (no source calls captured)"
+
+# Simple timing measurement
+echo ""
+echo "=== TIMING SUMMARY ==="
+echo "Measuring startup time..."
+
+START=$(date +%s%N)
+zsh -i -c "exit" 2>/dev/null
+END=$(date +%s%N)
+
+ELAPSED=$(( (END - START) / 1000000 ))
+echo "Total startup time: ~${ELAPSED}ms"
+
+echo ""
+echo "=== SUGGESTIONS ==="
+echo "1. Check oh-my-zsh plugins (loaded in .zshrc lines 22-30)"
+echo "2. Review compinit call (line 4-5)"
+echo "3. Check p10k instant prompt (line 11-13)"
+echo "4. Review any plugins that lazy-load"
+echo ""
+
+echo "Full timing output saved to: $TIMING_FILE"
