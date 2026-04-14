@@ -19,15 +19,22 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 - ✓ GNU stow symlink management — existing
 - ✓ Makefile with apt/brew detection — existing
 - ✓ Bootstrap script (install.sh) — existing
+- ✓ Cross-platform shell compatibility (v1.0) — platform detection, Homebrew paths, cross-platform aliases, install.sh, docs
+
+## Current Milestone: v1.1 Shell Optimization
+
+**Goal:** Profile shell startup, audit neovim plugins, add automated tests
+
+**Target features:**
+- Shell startup profiling to identify slow loads
+- Neovim plugin audit to find and remove unused plugins
+- Automated dotfiles tests
 
 ### Active
 
-- [ ] Add platform detection to zsh (Darwin vs Linux)
-- [ ] Configure Homebrew paths for both platforms (linuxbrew + homebrew)
-- [ ] Fix/update platform-specific tool aliases (clipboard, network tools)
-- [ ] Update install.sh for macOS (brew paths, optional packages)
-- [ ] Document Linux ↔ macOS tool equivalents
-- [ ] Ensure all bin scripts work on both platforms
+- [ ] Shell startup profiling to identify slow loads
+- [ ] Neovim plugin audit to find and remove unused plugins
+- [ ] Automated dotfiles tests
 
 ### Out of Scope
 
@@ -66,9 +73,9 @@ Currently using Ubuntu on a desktop. Planning to get a MacBook and dual-boot. Ne
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Unified dotfiles with guards | Single source of truth, easier to maintain | — Pending |
-| Homebrew for macOS | Standard macOS package manager, Linux version available | — Pending |
-| Platform detection via `uname -s` | Reliable, no external dependencies | — Pending |
+| Unified dotfiles with guards | Single source of truth, easier to maintain | ✓ Good |
+| Homebrew for macOS | Standard macOS package manager, Linux version available | ✓ Good |
+| Platform detection via `uname -s` | Reliable, no external dependencies | ✓ Good |
 
 ---
-*Last updated: 2026-04-13 after initial scope definition*
+*Last updated: 2026-04-14 after v1.0 complete, starting v1.1 Shell Optimization*

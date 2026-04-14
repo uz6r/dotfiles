@@ -1,44 +1,54 @@
-# Roadmap: Dotfiles Cross-Platform Compatibility
+# Roadmap: Dotfiles Shell Optimization
 
-**Phases:** 2 | **Requirements:** 22 | **Created:** 2026-04-13
+**Phases:** 3 | **Requirements:** 10 | **Created:** 2026-04-14
 
-## Phase 1: Platform Foundation
+## Phase 3: Shell Profiling
 
-**Goal:** Core platform detection and alias fixes
+**Goal:** Create shell startup profiling to identify slow loads
 
-### Requirements (14)
-- PLAT-01, PLAT-02, PLAT-03 (Platform detection)
-- PATH-01, PATH-02, PATH-03, PATH-04 (PATH configuration)
-- ALIAS-01, ALIAS-02, ALIAS-03, ALIAS-04, ALIAS-05, ALIAS-06 (Aliases)
-- FUNC-01, FUNC-02 (Functions)
+### Requirements (3)
+- PROF-01: zsh startup timing script
+- PROF-02: Profiler identifies slow plugins/sources
+- PROF-03: Profiler outputs actionable suggestions
 
 ### Success Criteria
-1. `uname -s` detection works correctly on both platforms
-2. Homebrew paths set correctly (Apple Silicon, Intel, Linuxbrew)
-3. `copy`, `paste`, `open` aliases work on both platforms
-4. `localip` shows correct IP on both platforms
-5. `ports` shows listening ports on both platforms
-6. `ll` shows colored output on both platforms
-7. `killport` kills processes by port on both platforms
-8. `zsh -n ~/.zshrc` passes on both platforms
+1. `zsh -x -i -c exit 2>&1 | tail -20` captures timing data
+2. Script can identify top 5 slowest components
+3. Output clearly shows which plugins/sources are slowest
 
 ---
 
-## Phase 2: Scripts & Documentation
+## Phase 4: Neovim Plugin Audit
 
-**Goal:** install.sh updates and README documentation
+**Goal:** Audit neovim plugins to find unused ones
 
-### Requirements (8)
-- SCRI-01, SCRI-02, SCRI-03 (Scripts)
-- DOCS-01, DOCS-02, DOCS-03 (Documentation)
+### Requirements (3)
+- NVIM-01: Script analyzes Neovim plugin usage
+- NVIM-02: Identify plugins loaded but not used
+- NVIM-03: Provide recommendations for removal
 
-### Success Criteria ✓ Complete
-1. `install.sh` installs Homebrew if not present (both platforms)
-2. `install.sh` runs stow and links configs on both platforms
-3. `install.sh` works non-interactively with flags
-4. README documents Homebrew installation for both platforms
-5. README lists Linux ↔ macOS tool equivalents
-6. All v1 requirements verified working on both platforms
+### Success Criteria
+1. Script reads Neovim lazy.nvim state JSON
+2. Identifies plugins with no :h calls, no keybindings, no autocmds
+3. Outputs list of candidates for removal
+
+---
+
+## Phase 5: Automated Tests
+
+**Goal:** Add automated test suite for dotfiles validation
+
+### Requirements (4)
+- TEST-01: zsh syntax validation
+- TEST-02: Neovim config validation
+- TEST-03: Git config validation
+- TEST-04: Makefile test target
+
+### Success Criteria
+1. `make test` runs all validations
+2. `zsh -n` passes for all .zshrc files
+3. `nvim --headless +qa` exits without error
+4. Git config parses correctly
 
 ---
 
@@ -46,36 +56,30 @@
 
 | Phase | Goal | Requirements | Success Criteria |
 |-------|------|--------------|-------------------|
-| 1 | Platform Foundation | 14/14 ✓ | 2026-04-13 |
-| 2 | Scripts & Docs | 8/8 ✓ | 2026-04-13 |
+| 3 | Shell Profiling | 3/3 | 2026-04-14 |
+| 4 | Neovim Audit | 3/3 | 2026-04-14 |
+| 5 | Automated Tests | 4/4 | 2026-04-14 |
 
 ---
 
-## Milestone: Cross-Platform Ready ✓
+## Milestone: v1.1 Shell Optimization
 
-**Status:** Complete (2026-04-13)
-
----
-
-## Milestone: Cross-Platform Ready ✓
-
-**When:** Both phases complete
+**Target:** Shell startup profiling, neovim plugin audit, automated tests
 
 **Done means:**
-- Dotfiles clone + bootstrap works on clean Ubuntu install
-- Dotfiles clone + bootstrap works on clean macOS install
-- Switching between platforms requires no manual tweaks
-- All current functionality preserved on Linux
-
----
-
-*Roadmap created: 2026-04-13 | Updated: 2026-04-13*
+- Shell startup profiling script identifies slow components
+- Neovim plugin audit identifies unused plugins
+- Automated tests validate all dotfiles configs
+- All tests run via `make test`
 
 ---
 
 ## Future Improvements
 
-- Move Courtsite-specific aliases to `.zshrc.local`
-- Add shell startup profiling
-- Audit unused neovim plugins
-- Add automated dotfiles tests
+- Lazy-load non-critical plugins based on profiling
+- Cross-platform validation (if Mac available)
+- Test stow symlink creation
+
+---
+
+*Roadmap created: 2026-04-14 | Updated: 2026-04-14*

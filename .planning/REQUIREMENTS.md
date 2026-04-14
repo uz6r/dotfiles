@@ -1,91 +1,69 @@
-# Requirements: Dotfiles Cross-Platform Compatibility
+# Requirements: Dotfiles Shell Optimization
 
-**Defined:** 2026-04-13
+**Defined:** 2026-04-14
 **Core Value:** Dotfiles that "just work" regardless of which OS I'm booted into
 
 ## v1 Requirements
 
-### Platform Detection
+### Shell Profiling
 
-- [ ] **PLAT-01**: .zshrc detects Darwin vs Linux via `uname -s`
-- [ ] **PLAT-02**: Helper functions `is_darwin()` and `is_linux()` available
-- [ ] **PLAT-03**: Platform stored in `$IS_LINUX` / `$IS_MACOS` variable
+- [ ] **PROF-01**: zsh startup timing script measures load time of .zshrc
+- [ ] **PROF-02**: Profiler identifies which plugins/sources take the most time
+- [ ] **PROF-03**: Profiler outputs actionable suggestions for slow components
 
-### PATH Configuration
+### Neovim Plugin Audit
 
-- [ ] **PATH-01**: Homebrew bin in PATH for both platforms
-- [ ] **PATH-02**: Apple Silicon (/opt/homebrew) vs Intel (/usr/local) detection on macOS
-- [ ] **PATH-03**: Linuxbrew (~/.linuxbrew or /home/linuxbrew/.linuxbrew) detection on Linux
-- [ ] **PATH-04**: Standard paths (~/bin, ~/.local/bin) work on both
+- [ ] **NVIM-01**: Script analyzes Neovim plugin usage via :Lazy (or JSON output)
+- [ ] **NVIM-02**: Plugin audit identifies plugins loaded but not used (via standard indicators)
+- [ ] **NVIM-03**: Audit provides recommendations for plugins to remove
 
-### Aliases
+### Automated Tests
 
-- [ ] **ALIAS-01**: `copy` alias works (pbcopy on macOS, xclip on Linux)
-- [ ] **ALIAS-02**: `paste` alias works (pbpaste on macOS, xclip on Linux)
-- [ ] **ALIAS-03**: `open` alias works (native on macOS, xdg-open on Linux)
-- [ ] **ALIAS-04**: `localip` works on both (ifconfig on macOS, ip addr on Linux)
-- [ ] **ALIAS-05**: `ports` uses lsof (works on both) instead of Linux netstat flags
-- [ ] **ALIAS-06**: `ll` uses `-G` on macOS, `--color=auto` on Linux
+- [ ] **TEST-01**: Test suite validates zsh syntax (`zsh -n`) for all zsh config files
+- [ ] **TEST-02**: Test suite validates Neovim config loads without errors (`nvim --headless`)
+- [ ] **TEST-03**: Test suite validates Git config syntax
+- [ ] **TEST-04**: Test suite runs via Makefile (`make test` or `make lint`)
 
-### Functions
+## v2 Requirements
 
-- [ ] **FUNC-01**: `killport()` works on both platforms (lsof works on both)
-- [ ] **FUNC-02**: `localdev()` wrapped in Linux check (Courtsite is Linux-only)
+### Shell Optimization
 
-### Scripts
+- **PROF-04**: Lazy-load non-critical plugins/functions based on profiling data
+- **PROF-05**: Implement cached zshrc compilation (zcompdump)
 
-- [ ] **SCRI-01**: install.sh detects and uses brew on macOS
-- [ ] **SCRI-02**: install.sh detects and uses apt on Linux
-- [ ] **SCRI-03**: install.sh works non-interactively on both platforms
+### Test Expansion
 
-### Documentation
-
-- [ ] **DOCS-01**: README.md documents Homebrew requirement for macOS
-- [ ] **DOCS-02**: README.md documents Linuxbrew requirement for Linux
-- [ ] **DOCS-03**: Linux ↔ macOS tool equivalents documented
+- **TEST-05**: Cross-platform validation (test on both Linux and macOS if available)
+- **TEST-06**: Test stow symlink creation
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Windows WSL support | Not using |
-| iTerm2 specific config | Using VS Code terminal |
-| Brewfile generation | Manual brew install fine |
-| Linux distribution-specific tweaks | Ubuntu assumed |
+| Neovim startup profiling (vs plugin) | Plugin audit sufficient for v1 |
+| CI/CD integration | Local test run sufficient |
+| Test coverage reporting | Binary pass/fail sufficient |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PLAT-01 | Phase 1 | ✓ Complete |
-| PLAT-02 | Phase 1 | ✓ Complete |
-| PLAT-03 | Phase 1 | ✓ Complete |
-| PATH-01 | Phase 1 | ✓ Complete |
-| PATH-02 | Phase 1 | ✓ Complete |
-| PATH-03 | Phase 1 | ✓ Complete |
-| PATH-04 | Phase 1 | ✓ Complete |
-| ALIAS-01 | Phase 1 | ✓ Complete |
-| ALIAS-02 | Phase 1 | ✓ Complete |
-| ALIAS-03 | Phase 1 | ✓ Complete |
-| ALIAS-04 | Phase 1 | ✓ Complete |
-| ALIAS-05 | Phase 1 | ✓ Complete |
-| ALIAS-06 | Phase 1 | ✓ Complete |
-| FUNC-01 | Phase 1 | ✓ Complete |
-| FUNC-02 | Phase 1 | ✓ Complete |
-| SCRI-01 | Phase 2 | ✓ Complete |
-| SCRI-02 | Phase 2 | ✓ Complete |
-| SCRI-03 | Phase 2 | ✓ Complete |
-| DOCS-01 | Phase 2 | ✓ Complete |
-| DOCS-02 | Phase 2 | ✓ Complete |
-| DOCS-03 | Phase 2 | ✓ Complete |
+| PROF-01 | Phase 3 | Pending |
+| PROF-02 | Phase 3 | Pending |
+| PROF-03 | Phase 3 | Pending |
+| NVIM-01 | Phase 4 | Pending |
+| NVIM-02 | Phase 4 | Pending |
+| NVIM-03 | Phase 4 | Pending |
+| TEST-01 | Phase 5 | Pending |
+| TEST-02 | Phase 5 | Pending |
+| TEST-03 | Phase 5 | Pending |
+| TEST-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 22 total
-- Mapped to phases: 22
-- Phase 1: 15/15 complete ✓
-- Phase 2: 7/7 complete ✓
-- Unmapped: 0 ✓
+- v1 requirements: 10 total
+- Mapped to phases: 0
+- Unmapped: 0 (will be mapped by roadmapper)
 
 ---
-*Requirements defined: 2026-04-13*
-*Last updated: 2026-04-13 after Phase 1 completion*
+*Requirements defined: 2026-04-14*
+*Last updated: 2026-04-14 after milestone v1.1 definition*
