@@ -129,6 +129,7 @@ make ci-check   # test the same checks CI will run
 
 ## notes
 
+- Some Courtsite-related aliases are being phased out — see `.zshrc` comments marked `TODO`
 - machine-specific secrets go in ~/.zshrc.local or ~/.gitconfig.local
 - add scripts to bin/ to make them available globally
 - all configs are symlinked into $HOME via stow

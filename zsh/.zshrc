@@ -150,7 +150,7 @@ killport() {
   echo "killed process $pid on port $1"
 }
 
-# Courtsite local dev (Linux only - Courtsite is Linux-only project)
+# TODO Courtsite local dev - phasing out
 if is_linux; then
 localdev() {
   local base_dir="${COURTSITE_DIR:-$HOME/Courtsite}/enjin"
@@ -309,23 +309,23 @@ alias dex='docker exec -it'
 alias dlog='docker logs -f'
 
 # ---------------------------------
-# courtsite shortcuts
+# TODO courtsite shortcuts - phasing out
 # ---------------------------------
 # cd into folder
-alias core="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-core"
-alias konsol="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-konsol"
-alias pelanggan="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-pelanggan"
-alias proksi="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-proksi"
-alias setiausaha="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-setiausaha"
-alias sinar="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/sinar-client"
+# alias core="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-core"
+# alias konsol="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-konsol"
+# alias pelanggan="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-pelanggan"
+# alias proksi="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-proksi"
+# alias setiausaha="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-setiauyama}"
+# alias sinar="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/sinar-client"
 alias sinar-pi-setup="${DOTFILES_DIR:-$HOME/uz6r/dotfiles}/bin/sinar-pi-setup"
 alias sinar-pi-wifi-setup="${DOTFILES_DIR:-$HOME/uz6r/dotfiles}/bin/sinar-pi-wifi-setup"
-alias workflow="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-workflow"
-alias infra="cd ${COURTSITE_DIR:-$HOME/Courtsite}/infrastructure"
+# alias workflow="cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin/enjin-workflow"
+# alias infra="cd ${COURTSITE_DIR:-$HOME/Courtsite}/infrastructure"
 
-alias compose="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose.sh)"
-alias compose-stop="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose-stop.sh)"
-alias compose-restart="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose-stop.sh && ./compose.sh)"
+# alias compose="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose.sh)"
+# alias compose-stop="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose-stop.sh)"
+# alias compose-restart="(cd ${COURTSITE_DIR:-$HOME/Courtsite}/enjin && ./compose-stop.sh && ./compose.sh)"
 
 # ---------------------------------
 # youtube / yt-dlp shortcuts

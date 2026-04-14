@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# DEPRECATED: Courtsite project no longer maintained
+# This script depends on internal Courtsite infrastructure
+# Kept for reference only - not actively used
+
 # Usage: update-migration-pr
 # Interactively prompts for domain, revision, and enjin PR link.
 # Creates dev and prod PRs in the infrastructure repo.
