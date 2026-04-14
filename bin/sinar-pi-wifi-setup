@@ -180,8 +180,13 @@ EOF
   echo ""
 
   # --- rsync to the Pi ---
-  local rsync_target="${pi_user}@${pi_hostname}.local"
   local remote_path="/etc/NetworkManager/system-connections/${file_name}"
+
+  # Try resolving hostname, fall back to .local (for mDNS/Avahi)
+  local rsync_target="${pi_user}@${pi_hostname}"
+  if timeout 1 ping -c 1 "${pi_hostname}.local" &>/dev/null 2>&1; then
+    rsync_target="${pi_user}@${pi_hostname}.local"
+  fi
 
   info "Rsyncing ${file_name} to ${rsync_target}:${remote_path}..."
 
