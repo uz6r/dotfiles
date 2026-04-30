@@ -219,4 +219,4 @@ test: ## run all dotfiles validation tests
 
 courtsite-guard: ## check for Courtsite references in repo
 	@echo "→ Checking for Courtsite references..."
-	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches . && echo "  ✅ No Courtsite references found" || { echo "❌ Courtsite references found"; exit 1; }
+	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!bin' -g '!README.md' -g '!.githooks' . && echo "  ✅ No Courtsite references found" || { echo "❌ Courtsite references found"; exit 1; }
