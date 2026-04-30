@@ -33,7 +33,7 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Remove Courtsite references from .zshrc and delete update-migration-pr script
+- [x] 06-01-PLAN.md — Remove Courtsite references from .zshrc and delete update-migration-pr script
 - [ ] 06-02-PLAN.md — Add courtsite-guard to Makefile and pre-commit hook
 
 ---

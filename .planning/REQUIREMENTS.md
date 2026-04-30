@@ -6,10 +6,10 @@
 
 ### Shell Configuration
 
-- [ ] **SHELL-01**: User can use dotfiles without Courtsite-specific `localdev()` function (remove function and nested `start_tmux_layout()` from .zshrc)
-- [ ] **SHELL-02**: User can use dotfiles without commented Courtsite aliases (remove lines 311-328 and TODO markers from .zshrc)
-- [ ] **SHELL-03**: User can use dotfiles without COURTSITE_DIR variable references (clean up all `${COURTSITE_DIR:-$HOME/Courtsite}` usage)
-- [ ] **SHELL-04**: User can use dotfiles with cross-platform detection logic preserved (keep `is_darwin()`, `is_linux()`, and `case "$(uname -s)"` block lines 36-77)
+- [x] **SHELL-01**: User can use dotfiles without Courtsite-specific `localdev()` function (remove function and nested `start_tmux_layout()` from .zshrc)
+- [x] **SHELL-02**: User can use dotfiles without commented Courtsite aliases (remove lines 311-328 and TODO markers from .zshrc)
+- [x] **SHELL-03**: User can use dotfiles without COURTSITE_DIR variable references (clean up all `${COURTSITE_DIR:-$HOME/Courtsite}` usage)
+- [x] **SHELL-04**: User can use dotfiles with cross-platform detection logic preserved (keep `is_darwin()`, `is_linux()`, and `case "$(uname -s)"` block lines 36-77)
 
 ### Scripts & Binaries
 
@@ -46,10 +46,10 @@
 
 | REQ-ID | Phase | Status |
 |---------|-------|--------|
-| SHELL-01 | Phase 6 | Pending |
-| SHELL-02 | Phase 6 | Pending |
-| SHELL-03 | Phase 6 | Pending |
-| SHELL-04 | Phase 6 | Pending |
+| SHELL-01 | Phase 6 | Complete |
+| SHELL-02 | Phase 6 | Complete |
+| SHELL-03 | Phase 6 | Complete |
+| SHELL-04 | Phase 6 | Complete |
 | SCRIPT-01 | Phase 7 | Pending |
 | SCRIPT-02 | Phase 7 | Pending |
 | SCRIPT-03 | Phase 7 | Pending |
