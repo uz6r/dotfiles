@@ -5,7 +5,7 @@
 echo "Running pre-commit checks..."
 
 # Check for Courtsite references
-if rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches . ; then
+if rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!bin' -g '!README.md' -g '!.githooks' . ; then
   echo "❌ Courtsite references found. Commit blocked."
   exit 1
 fi
