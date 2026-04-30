@@ -1,52 +1,25 @@
----
-gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Cleanup & Decoupling
-status: defining
-last_updated: "2026-04-30T02:50:00.000Z"
-progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
----
-
-# State
-
-**Project:** Dotfiles Cross-Platform Compatibility
-**Core Value:** Dotfiles that "just work" regardless of which OS I'm booted into
-**Last Updated:** 2026-04-30
-
+# STATE.md
 ## Project Reference
+- **Core Value**: Reproducible, modular dotfiles setup with automated deployment for Linux systems
+- **Current Milestone**: v1.2 (starts at Phase 6, continues from v1.1 which ended at Phase 5)
+- **Current Focus**: Phase 6 - Clean Shell Configuration
 
-See: .planning/PROJECT.md (updated 2026-04-30)
+## Current Position
+- **Phase**: 6 (Clean Shell Configuration)
+- **Plan**: None yet
+- **Status**: Not started
+- **Progress**: [====>.......] 0%
 
-**Core value:** Dotfiles that "just work" regardless of which OS I'm booted into
-**Current focus:** Milestone v1.2 — removing Courtsite/company-specific config
+## Performance Metrics
+- **Phases Completed**: 0/3 (v1.2)
+- **Plans Completed**: 0/9 (total across v1.2 phases)
+- **Requirements Met**: 0/10 (v1.2)
 
-## Current Phase
+## Accumulated Context
+- **Decisions**: Phase numbering continues sequentially from v1.1 (ended at Phase 5), so v1.2 starts at Phase 6
+- **Todos**: None yet
+- **Blockers**: None
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-30 — Milestone v1.2 started
-
-## Progress
-
-| Phase | Status | Requirements |
-|-------|--------|--------------|
-| — | Defining | — |
-
-**Overall:** Defining requirements
-
-## Recent Commits
-
-- `5400436` chore: complete v1.1 milestone
-- `fe9082a` docs: add v1.1 milestone audit
-
-## Next Action
-
-Define requirements with `/gsd-new-milestone`
-
----
-*State updated: 2026-04-30*
+## Session Continuity
+- Last updated: Thu Apr 30 2026
+- Next step: Plan Phase 6 via `/gsd-plan-phase 6`

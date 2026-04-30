@@ -1,48 +1,87 @@
-# Roadmap: Dotfiles Cross-Platform Compatibility
+# Roadmap: Milestone v1.2 - Cleanup & Decoupling
 
-## Milestones
+**Milestone Goal:** Remove Courtsite/company-specific configuration since leaving the company
 
-- ✅ **v1.0 Cross-Platform** — Phases 1-2 (shipped 2026-04-13)
-- ✅ **v1.1 Shell Optimization** — Phases 3-5 (shipped 2026-04-14)
+**Granularity:** Coarse
+**Phases:** 3 (Phase 6-8)
+
+---
 
 ## Phases
 
-<details>
-<summary>✅ v1.0 Cross-Platform (Phases 1-2) — SHIPPED 2026-04-13</summary>
+- [ ] **Phase 6: Clean Shell Configuration** - Remove Courtsite references from .zshrc
+- [ ] **Phase 7: Remove Company Scripts** - Delete bin/ scripts and verify symlinks
+- [ ] **Phase 8: Verify & Update Documentation** - Final verification and README update
 
-- [x] Phase 1: Platform Foundation (14 requirements) — completed 2026-04-13
-- [x] Phase 2: Scripts & Documentation (8 requirements) — completed 2026-04-13
+---
 
-**Done:** Platform detection, Homebrew paths, cross-platform aliases, install.sh, docs
-</details>
+## Phase Details
 
-<details>
-<summary>✅ v1.1 Shell Optimization (Phases 3-5) — SHIPPED 2026-04-14</summary>
+### Phase 6: Clean Shell Configuration
+**Goal**: User can use dotfiles with zero Courtsite references in .zshrc while preserving cross-platform detection
 
-- [x] Phase 3: Shell Profiling (3 requirements) — completed 2026-04-14
-- [x] Phase 4: Neovim Plugin Audit (3 requirements) — completed 2026-04-14
-- [x] Phase 5: Automated Tests (4 requirements) — completed 2026-04-14
+**Depends on**: Nothing (first phase of v1.2)
 
-**Done:** Shell profiling script, plugin audit script, `make test`
-</details>
+**Requirements**: SHELL-01, SHELL-02, SHELL-03, SHELL-04
+
+**Success Criteria** (what must be TRUE):
+  1. User can start a new zsh session without errors (`zsh -n .zshrc` passes)
+  2. User can use shell without `localdev()` function available (function removed)
+  3. User can view .zshrc with no commented Courtsite aliases (lines 311-328 removed entirely)
+  4. User can verify cross-platform detection works (`is_darwin()`, `is_linux()` functions present and functional)
+
+**Plans**: TBD
+
+---
+
+### Phase 7: Remove Company Scripts
+**Goal**: User can use dotfiles with only generic portable utilities in bin/ and no broken symlinks
+
+**Depends on**: Phase 6 (shell startup working correctly)
+
+**Requirements**: SCRIPT-01, SCRIPT-02, SCRIPT-03
+
+**Success Criteria** (what must be TRUE):
+  1. User can verify `sinar-pi-setup` and `sinar-pi-wifi-setup` no longer exist in bin/
+  2. User can run GNU Stow operations without broken symlink errors (`stow -D bin && stow bin` succeeds)
+  3. User can verify PATH configuration doesn't reference non-existent `scripts/` directory (line 80 audited)
+
+**Plans**: TBD
+
+---
+
+### Phase 8: Verify & Update Documentation
+**Goal**: User can verify complete cleanup and has updated documentation with zero Courtsite references
+
+**Depends on**: Phase 6 and Phase 7 (all code changes complete)
+
+**Requirements**: DOC-01, DOC-02, DOC-03
+
+**Success Criteria** (what must be TRUE):
+  1. User can read README.md without any Courtsite/sinar/enjin references
+  2. User can run `rg -i "courtsite|sinar|enjin|COURTSITE_DIR"` with zero matches in the repository
+  3. User has clear instructions to check `~/.zshrc.local` manually for any remaining Courtsite references
+
+**Plans**: TBD
+
+---
 
 ## Progress
 
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 1 | v1.0 | 4/4 | ✓ Complete | 2026-04-13 |
-| 2 | v1.0 | 4/4 | ✓ Complete | 2026-04-13 |
-| 3 | v1.1 | 3/3 | ✓ Complete | 2026-04-14 |
-| 4 | v1.1 | 3/3 | ✓ Complete | 2026-04-14 |
-| 5 | v1.1 | 4/4 | ✓ Complete | 2026-04-14 |
-
-**Overall:** 5 phases, 18/18 requirements complete (100%)
-
-## Future Improvements
-
-- Lazy-load non-critical plugins based on profiling (v2)
-- Cross-platform validation on macOS (v2)
-- Test stow symlink creation (v2)
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 6. Clean Shell Configuration | 0/3 | Not started | - |
+| 7. Remove Company Scripts | 0/3 | Not started | - |
+| 8. Verify & Update Documentation | 0/3 | Not started | - |
 
 ---
-*Roadmap updated: 2026-04-14*
+
+## Deferred to Future Milestones
+
+| Requirement | Reason |
+|-------------|--------|
+| GIT-01 | Repo is private; only needed if repo goes public (requires git-filter-repo, force push) |
+
+---
+
+*Roadmap created: 2026-04-30 for milestone v1.2*

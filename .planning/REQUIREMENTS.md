@@ -46,16 +46,16 @@
 
 | REQ-ID | Phase | Status |
 |---------|-------|--------|
-| SHELL-01 | — | Pending |
-| SHELL-02 | — | Pending |
-| SHELL-03 | — | Pending |
-| SHELL-04 | — | Pending |
-| SCRIPT-01 | — | Pending |
-| SCRIPT-02 | — | Pending |
-| SCRIPT-03 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
-| DOC-03 | — | Pending |
+| SHELL-01 | Phase 6 | Pending |
+| SHELL-02 | Phase 6 | Pending |
+| SHELL-03 | Phase 6 | Pending |
+| SHELL-04 | Phase 6 | Pending |
+| SCRIPT-01 | Phase 7 | Pending |
+| SCRIPT-02 | Phase 7 | Pending |
+| SCRIPT-03 | Phase 7 | Pending |
+| DOC-01 | Phase 8 | Pending |
+| DOC-02 | Phase 8 | Pending |
+| DOC-03 | Phase 8 | Pending |
 | GIT-01 | — | Deferred |
 
 ---
