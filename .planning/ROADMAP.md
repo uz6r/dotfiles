@@ -30,7 +30,11 @@
   3. User can view .zshrc with no commented Courtsite aliases (lines 311-328 removed entirely)
   4. User can verify cross-platform detection works (`is_darwin()`, `is_linux()` functions present and functional)
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Remove Courtsite references from .zshrc and delete update-migration-pr script
+- [ ] 06-02-PLAN.md — Add courtsite-guard to Makefile and pre-commit hook
 
 ---
 
@@ -70,7 +74,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 6. Clean Shell Configuration | 0/3 | Not started | - |
+| 6. Clean Shell Configuration | 0/2 | Not started | - |
 | 7. Remove Company Scripts | 0/3 | Not started | - |
 | 8. Verify & Update Documentation | 0/3 | Not started | - |
 
