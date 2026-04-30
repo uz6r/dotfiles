@@ -208,4 +208,15 @@ test: ## run all dotfiles validation tests
 	fi
 
 	@echo ""
+	@echo "→ Running courtsite guard"
+	@$(MAKE) courtsite-guard
+	@echo ""
 	@echo "=== All tests passed ==="
+
+# -------------------
+# courtsite guard (prevent Courtsite references)
+# -------------------
+
+courtsite-guard: ## check for Courtsite references in repo
+	@echo "→ Checking for Courtsite references..."
+	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches . && echo "  ✅ No Courtsite references found" || { echo "❌ Courtsite references found"; exit 1; }

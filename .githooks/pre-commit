@@ -4,6 +4,12 @@
 
 echo "Running pre-commit checks..."
 
+# Check for Courtsite references
+if rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches . ; then
+  echo "❌ Courtsite references found. Commit blocked."
+  exit 1
+fi
+
 # Run formatting
 make format > /dev/null 2>&1
 
