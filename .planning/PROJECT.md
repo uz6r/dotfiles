@@ -8,6 +8,16 @@ Personal dotfiles configured for dual-boot use between Ubuntu (Linux) and macOS.
 
 Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, no manual tweaks needed when switching.
 
+## Current Milestone: v1.2 Cleanup & Decoupling
+
+**Goal:** Remove Courtsite/company-specific configuration since leaving the company
+
+**Target features:**
+- Remove Courtsite references from .zshrc (commented TODOs, localdev function, COURTSITE_DIR usage)
+- Move Courtsite aliases to .zshrc.local (already there, ensure not in .zshrc)
+- Remove Courtsite-related scripts from bin/ (sinar-pi-setup, sinar-pi-wifi-setup)
+- Clean up any remaining Courtsite-specific configuration
+
 ## Requirements
 
 ### Validated
@@ -40,7 +50,7 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 
 ## Context
 
-Currently using Ubuntu on a desktop. Planning to get a MacBook and dual-boot. Need dotfiles that work on both.
+Currently using Ubuntu on a desktop. Leaving the company — removing all Courtsite/company-specific configuration from personal dotfiles to keep them generic and portable.
 
 **Existing structure:**
 - `zsh/` — .zshrc, oh-my-zsh plugins, p10k config
@@ -69,9 +79,25 @@ Currently using Ubuntu on a desktop. Planning to get a MacBook and dual-boot. Ne
 
 ## Next Milestone Goals
 
-- Lazy-load non-critical plugins based on profiling data
-- Cross-platform validation (test on macOS when available)
-- Test stow symlink creation
+- Complete removal of Courtsite-specific configuration
+- Ensure dotfiles remain cross-platform compatible after cleanup
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
 
 ---
-*Last updated: 2026-04-14 after v1.1 milestone complete*
+*Last updated: 2026-04-30 after v1.2 milestone started*

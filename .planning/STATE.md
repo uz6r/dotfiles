@@ -1,42 +1,43 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Shell Optimization ✓
-status: complete
-last_updated: "2026-04-14T14:50:00.000Z"
+milestone: v1.2
+milestone_name: Cleanup & Decoupling
+status: defining
+last_updated: "2026-04-30T02:50:00.000Z"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # State
 
 **Project:** Dotfiles Cross-Platform Compatibility
 **Core Value:** Dotfiles that "just work" regardless of which OS I'm booted into
-**Last Updated:** 2026-04-14
+**Last Updated:** 2026-04-30
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-14)
+See: .planning/PROJECT.md (updated 2026-04-30)
 
 **Core value:** Dotfiles that "just work" regardless of which OS I'm booted into
-**Current focus:** Milestone v1.1 complete — see .planning/milestones/
+**Current focus:** Milestone v1.2 — removing Courtsite/company-specific config
 
 ## Current Phase
 
-**v1.1 Shell Optimization** — Complete ✓
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-30 — Milestone v1.2 started
 
 ## Progress
 
 | Phase | Status | Requirements |
 |-------|--------|--------------|
-| 3 | ✓ Complete | 3/3 |
-| 4 | ✓ Complete | 3/3 |
-| 5 | ✓ Complete | 4/4 |
+| — | Defining | — |
 
-**Overall:** 10/10 requirements complete (100%)
+**Overall:** Defining requirements
 
 ## Recent Commits
 
@@ -45,7 +46,7 @@ See: .planning/PROJECT.md (updated 2026-04-14)
 
 ## Next Action
 
-Start a new milestone with `/gsd-new-milestone`
+Define requirements with `/gsd-new-milestone`
 
 ---
-*State updated: 2026-04-14*
+*State updated: 2026-04-30*

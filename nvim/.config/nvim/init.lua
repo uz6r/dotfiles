@@ -145,13 +145,21 @@ vim.keymap.set("n", "<leader>ag", "<cmd>Gemini<cr>", { silent = true })
 vim.keymap.set("n", "<leader>al", "<cmd>Ollama<cr>", { silent = true })
 
 local function open_claude_ollama()
-	local Terminal = require("toggleterm.terminal").Terminal
-	local claude = Terminal:new({
-		cmd = "env ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY=ollama claude --model gemma4",
-		direction = "float",
-		float_opts = { border = "curved", width = 120, height = 35 },
-	})
-	claude:toggle()
+	vim.ui.input({ prompt = "Claude Model: " }, function(model)
+		if not model or model == "" then
+			return
+		end
+		local Terminal = require("toggleterm.terminal").Terminal
+		local claude = Terminal:new({
+			cmd = string.format(
+				"env ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY=ollama claude --model %s",
+				model
+			),
+			direction = "float",
+			float_opts = { border = "curved", width = 120, height = 35 },
+		})
+		claude:toggle()
+	end)
 end
 vim.keymap.set("n", "<leader>aco", open_claude_ollama, { noremap = true, silent = true })
 
