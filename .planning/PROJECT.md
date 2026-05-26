@@ -2,21 +2,11 @@
 
 ## What This Is
 
-Personal dotfiles configured for dual-boot use between Ubuntu (Linux) and macOS. One repository, works seamlessly on both platforms with platform-specific guards where needed.
+Personal dotfiles configured for dual-boot use between Ubuntu (Linux) and macOS. One repository, works seamlessly on both platforms with platform-specific guards where needed. All Courtsite/company-specific configuration has been removed — dotfiles are purely personal and portable.
 
 ## Core Value
 
 Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, no manual tweaks needed when switching.
-
-## Current Milestone: v1.2 Cleanup & Decoupling
-
-**Goal:** Remove Courtsite/company-specific configuration since leaving the company
-
-**Target features:**
-- Remove Courtsite references from .zshrc (commented TODOs, localdev function, COURTSITE_DIR usage)
-- Move Courtsite aliases to .zshrc.local (already there, ensure not in .zshrc)
-- Remove Courtsite-related scripts from bin/ (sinar-pi-setup, sinar-pi-wifi-setup)
-- Clean up any remaining Courtsite-specific configuration
 
 ## Requirements
 
@@ -29,11 +19,19 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 - ✓ GNU stow symlink management — existing
 - ✓ Makefile with apt/brew detection — existing
 - ✓ Bootstrap script (install.sh) — existing
-- ✓ Cross-platform shell compatibility (v1.0) — platform detection, Homebrew paths, cross-platform aliases, install.sh, docs
-- ✓ Shell startup profiling (v1.1) — `bin/profile-zsh` script
-- ✓ Neovim plugin audit (v1.1) — `bin/audit-nvim-plugins` script  
-- ✓ Automated dotfiles tests (v1.1) — `make test` validates zsh, git, nvim configs
-- ✓ Courtsite scripts removal (Phase 07) — `bin/sinar-pi-setup` and `bin/sinar-pi-wifi-setup` deleted, `scripts/` PATH reference cleaned up
+- ✓ Cross-platform shell compatibility — v1.0
+- ✓ Shell startup profiling (`bin/profile-zsh`) — v1.1
+- ✓ Neovim plugin audit (`bin/audit-nvim-plugins`) — v1.1
+- ✓ Automated dotfiles tests (`make test`) — v1.1
+- ✓ Shell config cleanup — v1.2 (zero Courtsite references in .zshrc, cross-platform detection preserved)
+- ✓ Courtsite guard — v1.2 (`make courtsite-guard` + pre-commit hook prevents regressions)
+- ✓ Company scripts removal — v1.2 (sinar-pi-setup, sinar-pi-wifi-setup deleted; PATH cleaned)
+- ✓ Documentation cleanup — v1.2 (README.md + STRUCTURE.md with zero company references)
+- ✓ verify-cleanup target — v1.2 (full-repo Courtsite scan integrated into `make test`)
+
+### Deferred
+
+- GIT-01 — git-filter-repo history rewrite (only if repo goes public)
 
 ### Out of Scope
 
@@ -41,27 +39,31 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 - [Shell integration for iTerm2] — default terminal fine
 - [Brewfile generation] — manual brew install sufficient
 
-## Current State (v1.2 Phase 07 Complete)
+## Current State
 
-**Shipped:** 2026-05-26
+**v1.2 Cleanup & Decoupling shipped** (2026-05-26)
 
-- Phase 07 complete — Courtsite scripts removed from bin/, stow fixed, PATH cleaned up
-- Shell profiling: `bin/profile-zsh` — measures startup time (~950ms), identifies slow components
-- Plugin audit: `bin/audit-nvim-plugins` — lists 23 plugins, identifies candidates for removal
-- Test suite: `make test` — validates zsh, git, nvim configs
+- 3 phases (6-8), 5 plans, 13 tasks completed
+- All Courtsite/sinar/enjin references removed from repo
+- Zero company references in user-facing code (`rg -i "courtsite|sinar|enjin" --files-with-matches .` returns only planning/guard files)
+- `make test` validates zsh syntax, git config, nvim config, courtsite-guard, and full verify-cleanup
+- Pre-commit hook blocks any future Courtsite references from being committed
+- 1065+ lines of Courtsite-specific code deleted (sinar-pi-setup 726 + sinar-pi-wifi-setup 339)
+- Platform detection logic preserved: `is_darwin()`, `is_linux()`, Homebrew PATH for both OSes
 
 ## Context
 
-Currently using Ubuntu on a desktop. Leaving the company — removing all Courtsite/company-specific configuration from personal dotfiles to keep them generic and portable.
+Currently using Ubuntu on a desktop. Leaving the company — all Courtsite/company-specific configuration has been removed from personal dotfiles. The repo is clean, portable, and ready for the next phase.
 
-**Existing structure:**
+**Current structure:**
 - `zsh/` — .zshrc, oh-my-zsh plugins, p10k config
-- `git/` — .gitconfig
+- `git/` — .gitconfig with aliases and global ignore
 - `nvim/` — .config/nvim/init.lua + lua modules
 - `tmux/` — .tmux.conf
-- `bin/` — profile-zsh, audit-nvim-plugins
-- `Makefile` — bootstrap, update, clean, status, lint/format, test
+- `bin/` — profile-zsh (~950ms timing), audit-nvim-plugins (23 plugins listed)
+- `Makefile` — bootstrap, update, clean, status, lint/format, test (includes courtsite-guard + verify-cleanup)
 - `install.sh` — stow setup, git hooks
+- `.githooks/pre-commit` — lint + courtsite reference blocker
 
 ## Constraints
 
@@ -78,11 +80,20 @@ Currently using Ubuntu on a desktop. Leaving the company — removing all Courts
 | Homebrew for macOS | Standard macOS package manager, Linux version available | ✓ Good |
 | Platform detection via `uname -s` | Reliable, no external dependencies | ✓ Good |
 | `make test` for validation | Simple, fast feedback | ✓ Good |
+| Courtsite-guard in Makefile + pre-commit | Prevents regressions from reintroducing company refs (v1.2) | ✓ Good |
+| Guard evolution: temp exclusions → permanent | Gradual tightening as cleanup phases complete (v1.2) | ✓ Good |
+| verify-cleanup as stricter secondary check | Zero exclusions beyond .git for full-repo proof (v1.2) | ✓ Good |
+| Per-package prefix logic in make status | bin/ uses $HOME/, others use $HOME/. — fixed pre-existing bug (v1.2) | ✓ Good |
 
 ## Next Milestone Goals
 
-- Complete removal of Courtsite-specific configuration
-- Ensure dotfiles remain cross-platform compatible after cleanup
+No milestone currently planned. Options for next milestone:
+- Lazy-load non-critical zsh plugins (deferred from v1.1)
+- Modular `.zshrc` with `conf.d/` directory structure
+- Cross-platform validation on macOS hardware
+- Test stow symlink creation
+
+Use `/gsd-new-milestone` to begin planning.
 
 ## Evolution
 
@@ -102,4 +113,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-26 after Phase 07 completed*
+*Last updated: 2026-05-26 after v1.2 milestone*

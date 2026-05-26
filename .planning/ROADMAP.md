@@ -1,89 +1,43 @@
-# Roadmap: Milestone v1.2 - Cleanup & Decoupling
+# Roadmap: Dotfiles
 
-**Milestone Goal:** Remove Courtsite/company-specific configuration since leaving the company
+## Milestones
 
-**Granularity:** Coarse
-**Phases:** 3 (Phase 6-8)
+- ✅ **v1.0** — Cross-Platform Compatibility — Phases 1-2 (shipped 2026-04-13)
+- ✅ **v1.1** — Shell Optimization — Phases 3-5 (shipped 2026-04-14)
+- ✅ **v1.2** — Cleanup & Decoupling — Phases 6-8 (shipped 2026-05-26)
 
----
+## Completed
 
-## Phases
+<details>
+<summary>✅ v1.2 Cleanup & Decoupling (Phases 6-8) — SHIPPED 2026-05-26</summary>
 
-- [x] **Phase 6: Clean Shell Configuration** - Remove Courtsite references from .zshrc
-- [x] **Phase 7: Remove Company Scripts** - Delete bin/ scripts and verify symlinks
-- [ ] **Phase 8: Verify & Update Documentation** - Final verification and README update
+- [x] Phase 6: Clean Shell Configuration (2/2 plans) — completed 2026-04-30
+- [x] Phase 7: Remove Company Scripts (1/1 plan) — completed 2026-05-26
+- [x] Phase 8: Verify & Update Documentation (2/2 plans) — completed 2026-05-26
 
----
+See `milestones/v1.2-ROADMAP.md` for full details.
 
-## Phase Details
+</details>
 
-### Phase 6: Clean Shell Configuration
-**Goal**: User can use dotfiles with zero Courtsite references in .zshrc while preserving cross-platform detection
+<details>
+<summary>✅ v1.1 Shell Optimization (Phases 3-5) — SHIPPED 2026-04-14</summary>
 
-**Depends on**: Nothing (first phase of v1.2)
+See `milestones/v1.1-ROADMAP.md` for full details.
 
-**Requirements**: SHELL-01, SHELL-02, SHELL-03, SHELL-04
+</details>
 
-**Success Criteria** (what must be TRUE):
-  1. User can start a new zsh session without errors (`zsh -n .zshrc` passes)
-  2. User can use shell without `localdev()` function available (function removed)
-  3. User can view .zshrc with no commented Courtsite aliases (lines 311-328 removed entirely)
-  4. User can verify cross-platform detection works (`is_darwin()`, `is_linux()` functions present and functional)
+<details>
+<summary>✅ v1.0 Cross-Platform Compatibility (Phases 1-2) — SHIPPED 2026-04-13</summary>
 
-**Plans**: 2 plans
+Phase details archived.
 
-Plans:
-- [x] 06-01-PLAN.md — Remove Courtsite references from .zshrc and delete update-migration-pr script
-- [x] 06-02-PLAN.md — Add courtsite-guard to Makefile and pre-commit hook
+</details>
 
 ---
 
-### Phase 7: Remove Company Scripts
-**Goal**: User can use dotfiles with only generic portable utilities in bin/ and no broken symlinks
+## Next Milestone
 
-**Depends on**: Phase 6 (shell startup working correctly)
-
-**Requirements**: SCRIPT-01, SCRIPT-02, SCRIPT-03
-
-**Success Criteria** (what must be TRUE):
-  1. User can verify `sinar-pi-setup` and `sinar-pi-wifi-setup` no longer exist in bin/
-  2. User can run GNU Stow operations without broken symlink errors (`stow -D bin && stow bin` succeeds)
-  3. User can verify PATH configuration doesn't reference non-existent `scripts/` directory (line 80 audited)
-
-**Plans**: 1 plan
-
-Plans:
-- [x] 07-01-PLAN.md — Remove Courtsite scripts from bin/ & verify stow
-
----
-
-### Phase 8: Verify & Update Documentation
-**Goal**: User can verify complete cleanup and has updated documentation with zero Courtsite references
-
-**Depends on**: Phase 6 and Phase 7 (all code changes complete)
-
-**Requirements**: DOC-01, DOC-02, DOC-03
-
-**Success Criteria** (what must be TRUE):
-  1. User can read README.md without any Courtsite/sinar/enjin references
-  2. User can run `rg -i "courtsite|sinar|enjin|COURTSITE_DIR"` with zero matches in the repository
-  3. User has clear instructions to check `~/.zshrc.local` manually for any remaining Courtsite references
-
-**Plans**: 2 plans
-
-Plans:
-- [x] 08-01-PLAN.md — Update README.md and STRUCTURE.md to remove Courtsite references, fix URL, update directory trees
-- [x] 08-02-PLAN.md — Clean up guard exclusions, add verify-cleanup target, integrate into make test
-
----
-
-## Progress
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 6. Clean Shell Configuration | 2/2 | Complete | 2026-04-30 |
-| 7. Remove Company Scripts | 1/1 | Complete | 2026-05-26 |
-| 8. Verify & Update Documentation | 0/2 | In progress | - |
+None planned. Use `/gsd-new-milestone` to start the next milestone.
 
 ---
 
@@ -94,5 +48,4 @@ Plans:
 | GIT-01 | Repo is private; only needed if repo goes public (requires git-filter-repo, force push) |
 
 ---
-
-*Roadmap created: 2026-04-30 for milestone v1.2*
+*Last updated: 2026-05-26 after v1.2 milestone*
