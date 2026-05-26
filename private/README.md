@@ -25,3 +25,5 @@ Files that should NEVER be committed to the repo belong here.
 
 Review this directory and back up anything you want to keep.
 Then securely delete the entire directory before wiping the machine.
+
+See PRE-RESET-CHECKLIST.md at repo root for the full pre-wipe checklist.

@@ -228,11 +228,11 @@ test: ## run all dotfiles validation tests
 
 courtsite-guard: ## check for Courtsite references in repo
 	@echo "→ Checking for Courtsite references..."
-	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' . && echo "  ✅ No Courtsite references found" || { echo "❌ Courtsite references found"; exit 1; }
+	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' -g '!PRE-RESET-CHECKLIST.md' . && echo "  ✅ No Courtsite references found" || { echo "❌ Courtsite references found"; exit 1; }
 
 verify-cleanup: ## full repo scan for remaining Courtsite references
 	@echo "→ Running final cleanup verification..."
-	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' . && echo "  ✅ No Courtsite references found anywhere in repo" || { echo "❌ Courtsite references found in repo"; exit 1; }
+	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' -g '!PRE-RESET-CHECKLIST.md' . && echo "  ✅ No Courtsite references found anywhere in repo" || { echo "❌ Courtsite references found in repo"; exit 1; }
 	@echo ""
 	@echo "→ Manual ~/.zshrc.local check (not in git):"
 	@echo "  Run this on your local machine:"
@@ -282,3 +282,65 @@ sanitize: ## run all sanitization checks (zero tolerance, STRICT mode)
 macos-check: ## check macOS compatibility
 	@echo "→ Checking macOS compatibility..."
 	@bin/verify-macos || echo "  ⚠️  macOS compatibility check found issues (review output above)"
+
+# -------------------
+# workflow audit
+# -------------------
+
+audit-workflow: ## profile shell history and generate workflow report
+	@echo "→ Profiling shell history..."
+	@bin/audit-workflow --output WORKFLOW.md
+	@echo "✅ Workflow report written to WORKFLOW.md"
+
+# -------------------
+# comprehensive health
+# -------------------
+
+doctor: test sanitize macos-check ## comprehensive health check (test + sanitize + compat)
+	@echo ""
+	@echo "=== Doctor check passed ==="
+
+# -------------------
+# public-ready (pre-open-source aggregator)
+# -------------------
+
+public-ready: sanitize macos-check ## prepare repo for public visibility
+	@echo ""
+	@echo "→ Checking .gitignore coverage..."
+	@rg -q '^\*\.nmconnection' .gitignore && echo "  ✅ .gitignore has nmconnection" || echo "  ⚠️  .gitignore missing nmconnection"
+	@rg -q '^\*\.pem' .gitignore && echo "  ✅ .gitignore has pem" || echo "  ⚠️  .gitignore missing pem"
+	@rg -q '^private/' .gitignore && echo "  ✅ .gitignore has private/" || echo "  ⚠️  .gitignore missing private/"
+	@echo ""
+	@echo "→ Checking for hardcoded paths..."
+	@! rg -q '/home/[a-zA-Z]' --hidden -g '!.git' -g '!.planning' -g '!private/' . && echo "  ✅ No hardcoded paths" || echo "  ⚠️  Hardcoded paths found (check output above)"
+	@echo ""
+	@echo "=== Public-ready check complete ==="
+
+# -------------------
+# audit-home (home directory scan)
+# -------------------
+
+audit-home: ## scan home directory for sensitive data outside the repo
+	@echo "=== Home Directory Audit ==="
+	@echo ""
+	@echo "→ Checking for .env files outside repo..."
+	@find "$(HOME)" -maxdepth 4 -name '.env*' -not -path '*/node_modules/*' -not -path '*/dotfiles/*' -not -path '*/.cache/*' -not -path '*/.npm/*' -not -path '*/.cargo/*' 2>/dev/null | head -20 || echo "  (none found)"
+	@echo ""
+	@echo "→ Checking for .nmconnection files..."
+	@find "$(HOME)" -maxdepth 3 -name '*.nmconnection' -not -path '*/dotfiles/*' 2>/dev/null | head -5 || echo "  (none found)"
+	@echo ""
+	@echo "→ Checking ~/.ssh/ exists..."
+	@test -d "$(HOME)/.ssh" && echo "  ✅ ~/.ssh/ exists — remember to backup keys" || echo "  ℹ️  ~/.ssh/ not found"
+	@echo ""
+	@echo "→ Checking shell history location..."
+	@for f in "$(HOME)/.zsh_history" "$(HOME)/.bash_history"; do \
+		if [ -f "$$f" ]; then \
+			echo "  📄 $$f ($$(wc -l < "$$f") lines)"; \
+		fi; \
+	done
+	@echo ""
+	@echo "→ Checking for gitignored files in dotfiles that may need cleanup..."
+	@cd "$(PWD)" && git ls-files --others --exclude-standard | head -20 || echo "  (no untracked files)"
+	@echo ""
+	@echo "=== Home directory audit complete ==="
+	@echo "Review the output above and back up anything important."

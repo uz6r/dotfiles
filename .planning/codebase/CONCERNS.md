@@ -1,69 +1,56 @@
 # CONCERNS.md — Technical Debt & Issues
 
-**Focus:** Known issues, tech debt, security concerns, and fragile areas
+## Known Issues (v1.3 State)
 
-## Known Issues
+### 1. Git History Contains WiFi Password
+- **Severity:** Critical (deferred)
+- **Issue:** ZTE_EC382D.nmconnection (psk=7A33S6282B) exists in git history even though it's been removed from HEAD
+- **Mitigation:** File removed from tracking and .gitignore'd. Full history scrub (git-filter-repo) deferred (GIT-01) — only needed if repo goes public
 
-### 1. No Actual Tests
+### 2. macOS Compatibility (Static Analysis Only)
+- **Severity:** Medium
+- **Issue:** macOS compat fixed for known incompatibilities (duh, readlink, grep, date) but verified via static analysis only
+- **Impact:** Untested on actual macOS hardware
+- **Mitigation:** bin/verify-macos catches known GNU-only patterns; manual smoke test recommended before declaring cross-platform ready
+
+### 3. No Actual Test Suite
 - **Severity:** Low
 - **Issue:** No automated test suite for dotfiles functionality
-- **Mitigation:** CI runs formatters/linters, manual validation via `make status`
+- **Mitigation:** `make doctor` runs all verification targets; pre-commit hook and CI catch regressions
 
-### 2. Courtsite-Specific Aliases
+### 4. Pre-Commit Hook Runs Format Check
 - **Severity:** Low
-- **Issue:** `.zshrc` contains Courtsite-specific aliases (`core`, `konsol`, `pelanggan`, etc.)
-- **Impact:** Pollutes shell on non-Courtsite machines
-- **Mitigation:** Could be moved to `.zshrc.local`
+- **Issue:** `make format` runs on every commit, which can be slow if many formatters run
+- **Mitigation:** Format check is fast (<2s); only blocks on unformatted files, doesn't auto-format without review
 
-### 3. Localdev() Function is Linux-Only
-- **Severity:** Low
-- **Issue:** `localdev()` function wrapped in `if is_linux` but references Courstie paths
-- **Location:** `.zshrc:154-184`
-- **Impact:** Breaks on macOS if called
+## Security Posture (v1.3)
 
-### 4. Hard-coded Paths
-- **Severity:** Low
-- **Issue:** Some paths hardcoded (e.g., `${DOTFILES_DIR:-$HOME/uz6r/dotfiles}`)
-- **Impact:** Assumes specific directory structure
+| Threat | Status | Notes |
+|--------|--------|-------|
+| Secrets in tracking | ✅ Mitigated | Gitleaks + pre-commit secret scan + make sanitize |
+| Binary bloat | ✅ Mitigated | Pre-commit binary detection + make sanitize |
+| Hardcoded paths | ✅ Mitigated | All /home/uzer replaced with $HOME |
+| Pre-commit bypass | ✅ Mitigated | Hook blocks secrets, binaries, Courtsite |
+| .gitignore coverage | ✅ Mitigated | Security patterns for nmconnection, pem, key, env* |
+| Git history secrets | ⚠️ Deferred (GIT-01) | WiFi password in history; git-filter-repo if repo goes public |
 
-## Security Concerns
+## Performance Concerns
 
-### 1. GitHub SSH URLs
-- **Severity:** Info
-- **Location:** `.gitconfig:62-63`
-- **Issue:** Rewrites HTTPS URLs to SSH (`git@github.com:`)
-- **Note:** Intended behavior for SSH key authentication
+- **Shell startup time** — zsh with oh-my-zsh + plugins (~950ms measured in v1.1). P10k instant prompt mitigates perceived latency.
+- **Lazy loading** — Neovim plugins (nvim-cmp, LSP) load on demand via lazy.nvim.
 
-### 2. No Secrets in Repo
-- **Severity:** Good
-- **Mitigation:** Machine-specific secrets in `.zshrc.local` and `.gitconfig.local` (gitignored)
+## Tech Debt
 
-### 3. Pre-commit Runs Formatters
-- **Severity:** Good
-- **Note:** Auto-formats on commit, prevents inconsistent code
+1. **Oh-my-zsh dependency** — Heavy, but standard for zsh configuration
+2. **Powerlevel10k config** — Large `.p10k.zsh` file (~700 lines)
+3. **Plugin count** — 20+ neovim plugins, some may be unused (audit via `bin/audit-nvim-plugins`)
+4. **macOS CI runner** — Deferred to v1.4+ (cost/benefit for personal dotfiles)
+5. **Modular nvim init.lua** — 472 lines monolithic; split into lua/ modules deferred to v1.4+
 
 ## Fragile Areas
 
 | Area | Risk | Reason |
 |------|------|--------|
-| `.zshrc` (415 lines) | Medium | Large file, many conditional branches |
+| `.zshrc` (365 lines) | Medium | Large file, many conditional branches, platform guards |
 | Platform detection | Low | Simple `uname -s` check |
-| Homebrew paths | Low | Well-tested by community |
-| lazy.nvim bootstrap | Low | Standard lazy.nvim pattern |
-
-## Tech Debt
-
-1. **Oh-my-zsh dependency** — Heavy, but standard
-2. **Powerlevel10k config** — Large `.p10k.zsh` file
-3. **Plugin count** — 20+ neovim plugins, some may be unused
-
-## Performance Concerns
-
-- **Shell startup time** — zsh with oh-my-zsh + plugins can be slow
-- **Lazy loading** — Some plugins (nvim-cmp, LSP) load on demand
-
-## Areas for Improvement
-
-1. Consider moving Courtsite-specific aliases to local config
-2. Could add shell startup profiling to identify bottlenecks
-3. Consider removing unused plugins from neovim config
+| Pre-commit hook | Low | 4 check sections; ensure new checks don't slow commits |
