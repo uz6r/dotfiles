@@ -4,7 +4,9 @@
 
 set -e
 
-CONFIG_FILE="/home/uzer/uz6r/dotfiles/nvim/.config/nvim/init.lua"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+CONFIG_FILE="$DOTFILES_DIR/nvim/.config/nvim/init.lua"
 
 echo "=== Neovim Plugin Audit ==="
 echo ""

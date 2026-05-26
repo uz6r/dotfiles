@@ -1,6 +1,6 @@
 # OPENSPEC:START
 # OpenSpec shell completions configuration
-fpath=("/home/uzer/.oh-my-zsh/custom/completions" $fpath)
+fpath=("$HOME/.oh-my-zsh/custom/completions" $fpath)
 autoload -Uz compinit
 compinit
 # OPENSPEC:END
@@ -362,4 +362,4 @@ if [ -f "$HOME/.zshrc.local" ]; then
   source "$HOME/.zshrc.local"
 fi
 # opencode
-export PATH=/home/uzer/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"

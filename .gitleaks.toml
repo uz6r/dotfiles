@@ -1,0 +1,50 @@
+# .gitleaks.toml — secrets detection for dotfiles audit
+title = "Dotfiles Gitleaks Config"
+
+[extend]
+useDefault = true
+
+# Custom rules for dotfiles-specific patterns
+[[rules]]
+id = "ssh-private-key"
+description = "SSH private keys accidentally placed in config files"
+regex = '''-----BEGIN (?:RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----'''
+tags = ["ssh", "key"]
+
+[[rules]]
+id = "home-directory-path"
+description = "Hardcoded home directory with username (privacy leak)"
+regex = '''/home/[\w-]+/'''
+tags = ["privacy", "path"]
+
+[[rules]]
+id = "wifi-psk"
+description = "WiFi Pre-Shared Key in NetworkManager config"
+regex = '''psk\s*=\s*\S+'''
+tags = ["wifi", "credential"]
+
+[[rules]]
+id = "api-key-generic"
+description = "Generic API key patterns in config files"
+regex = '''(?:api[_-]?key|api[_-]?secret|access[_-]?key|secret[_-]?key)\s*[:=]\s*\S+'''
+tags = ["api", "credential"]
+
+[[rules]]
+id = "token-generic"
+description = "Generic token patterns (GitHub, gitlab, etc.)"
+regex = '''(?:ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9_]{36,}'''
+tags = ["token", "credential"]
+
+[[rules]]
+id = "base64-secret"
+description = "Suspicious base64-encoded strings in config"
+regex = '''[A-Za-z0-9+/]{40,}={0,2}'''
+tags = ["credential", "base64"]
+
+# Allowlist for planning docs and guard infrastructure
+[[allowlists]]
+description = "Known safe paths — planning docs and guard config"
+paths = [
+  '''\.planning/.*''',
+  '''\.githooks/.*''',
+]
