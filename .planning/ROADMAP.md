@@ -38,7 +38,7 @@ Phase details archived.
 
 ## Phases
 
-- [ ] **Phase 9: Comprehensive Audit & Sanitization** — Eliminate all sensitive traces, harden macOS compatibility, preserve portable workflows, and establish public/private boundaries before machine wipe
+- [ ] **Phase 9: Comprehensive Audit & Sanitization** (3 plans) — Eliminate all sensitive traces, harden macOS compatibility, preserve portable workflows, and establish public/private boundaries before machine wipe
 
 ## Phase Details
 
@@ -66,7 +66,12 @@ PUBS-01, PUBS-02, PUBS-03, PUBS-04
 
 5. **PRE-RESET-CHECKLIST.md is actionable and `make audit-home` scans home directory for sensitive data outside the repo** — `private/` directory exists as explicit public/private boundary; `make public-ready` aggregates all pre-public checks; user knows exactly what to back up and what to securely delete before machine wipe
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Security Triage & Git Hygiene (remove secrets, fix paths, gitleaks, private/)
+- [ ] 09-02-PLAN.md — Audit Tooling, Enforcement & macOS Compatibility (audit scripts, pre-commit, compat fixes)
+- [ ] 09-03-PLAN.md — Workflow Preservation & Final Documentation (WORKFLOW.md, PRE-RESET-CHECKLIST, make targets)
 
 ---
 
@@ -74,7 +79,7 @@ PUBS-01, PUBS-02, PUBS-03, PUBS-04
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 9. Comprehensive Audit & Sanitization | 0/1 | Not started | — |
+| 9. Comprehensive Audit & Sanitization | 0/3 | Ready to execute | — |
 
 ---
 
