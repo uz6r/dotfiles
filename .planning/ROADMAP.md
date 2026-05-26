@@ -70,7 +70,7 @@ PUBS-01, PUBS-02, PUBS-03, PUBS-04
 
 Plans:
 - [x] 09-01-PLAN.md — Security Triage & Git Hygiene (remove secrets, fix paths, gitleaks, private/)
-- [ ] 09-02-PLAN.md — Audit Tooling, Enforcement & macOS Compatibility (audit scripts, pre-commit, compat fixes)
+- [x] 09-02-PLAN.md — Audit Tooling, Enforcement & macOS Compatibility (audit scripts, pre-commit, compat fixes)
 - [ ] 09-03-PLAN.md — Workflow Preservation & Final Documentation (WORKFLOW.md, PRE-RESET-CHECKLIST, make targets)
 
 ---
