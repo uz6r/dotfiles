@@ -39,12 +39,10 @@ dotfiles/
 │           ├── init.lua # Neovim config
 │           └── lazy-lock.json
 ├── bin/                 # → ~/bin/
-│   ├── sinar-pi-setup       # Build sinarclient tarball
-│   └── sinar-pi-wifi-setup  # Pi wifi setup
+│   ├── audit-nvim-plugins   # Audit neovim plugin state
+│   └── profile-zsh          # Profile zsh startup time
 ├── tmux/                # → ~/.tmux.conf
 │   └── .tmux.conf       # tmux config
-└── scripts/             # Utility scripts (not symlinked)
-    └── update-migration-pr
 ```
 
 ## Key Locations
@@ -62,7 +60,7 @@ dotfiles/
 
 - **Directories**: lowercase, hyphenated (e.g., `bin/`, `zsh/`)
 - **Config files**: prefixed with `.` (e.g., `.zshrc`, `.gitconfig`)
-- **Scripts**: lowercase, hyphenated (e.g., `sinar-pi-setup`)
+- **Scripts**: lowercase, hyphenated (e.g., `audit-nvim-plugins`)
 - **Stow packages**: match target filename (e.g., `zsh/` → `.zshrc`)
 
 ## Stow Packages
