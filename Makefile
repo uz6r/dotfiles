@@ -29,7 +29,13 @@ status: ## show dotfiles + symlink status
 			echo "scanning $$d ..."; \
 			for f in $$d/*; do \
 				[ -e "$$f" ] || continue; \
-				target="$$HOME/.$$(basename $$f)"; \
+				basename="$$(basename $$f)"; \
+				if [ "$$d" = "bin" ]; then \
+					prefix="$$HOME/"; \
+				else \
+					prefix="$$HOME/."; \
+				fi; \
+				target="$${prefix}$$basename"; \
 				if [ -L "$$target" ]; then \
 					if [ -e "$$(readlink -f $$target)" ]; then \
 						echo "✅ $$target → $$(readlink $$target)"; \
