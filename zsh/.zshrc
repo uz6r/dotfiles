@@ -126,8 +126,12 @@ alias ff='find . -type f -name'
 alias fd='find . -type d -name'
 alias grep='grep --color=auto'
 
-# disk usage
-alias duh='du -h --max-depth=1 | sort -hr'
+# disk usage (cross-platform: both GNU du and BSD du support -d)
+if is_darwin; then
+  alias duh='du -h -d 1 | sort -hr'
+else
+  alias duh='du -h -d 1 | sort -hr'
+fi
 alias df='df -h'
 
 # ---------------------------------

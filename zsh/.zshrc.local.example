@@ -1,0 +1,23 @@
+# .zshrc.local — Machine-specific zsh overrides
+# Source: ~/.zshrc (automatically sourced if exists)
+#
+# This file is gitignored (via *.local pattern).
+# Create your own ~/.zshrc.local with machine-specific config.
+#
+# Copy this template:
+#   cp zsh/.zshrc.local.example ~/.zshrc.local
+# Then edit with your machine-specific values.
+
+# ── PATH additions (machine-specific) ──
+# export PATH="$HOME/my-custom-bin:$PATH"
+
+# ── Environment variables ──
+# export EDITOR="code"
+# export BROWSER="firefox"
+
+# ── Machine-specific aliases ──
+# alias myproject="cd ~/path/to/project"
+
+# ── Project-specific overrides ──
+# export GIT_AUTHOR_NAME="Your Name"
+# export GIT_AUTHOR_EMAIL="you@example.com"

@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# bin/verify-macos — Static analysis for Linux-only assumptions in scripts/configs
+#
+# Usage:
+#   ./verify-macos          # Check for common GNU-specific patterns
+#   ./verify-macos --quiet  # Only output if issues found
+#   ./verify-macos --strict # Exit with error code if any incompatibilities found
+#
+# Purpose:
+#   This script scans the repository for patterns that indicate Linux-only
+#   assumptions which would break on macOS. It checks for:
+#     - GNU-specific flag patterns (grep -oP, readlink -f, date +%s%N)
+#     - BSD/GNU incompatibilities (du --max-depth, stat -c, sed -i)
+#     - Hardcoded paths that don't exist on macOS (/home/)
+#     - Platform-specific package manager assumptions (apt-only installs)
+#
+#   Note: Static analysis only — cannot catch all macOS incompatibilities.
+#   Manual macOS smoke test recommended before declaring cross-platform ready.
+#   See STATE.md R-02 for details.
+#
+#   Known false positives:
+#     - Makefiles that install via apt in the ensure_tool macro but also
+#       have brew fallbacks (the brew fallback makes it cross-platform).
+#     - Sort -h flag in aliases (macOS sort may support -h depending on version).
+set -euo pipefail
+
+STRICT=0
+QUIET=0
+for arg in "$@"; do
+  case "$arg" in
+    --strict) STRICT=1 ;;
+    --quiet)  QUIET=1 ;;
+  esac
+done
+
+echo "=== macOS Compatibility Check ==="
+found=0
+
+check_pattern() {
+  local pattern="$1" label="$2"
+  local matches
+  matches=$(rg --no-heading -n "$pattern" --hidden \
+    -g '!.git' -g '!.planning' -g '!private/' -g '!node_modules' \
+    . 2>/dev/null || true)
+  if [ -n "$matches" ]; then
+    echo "⚠️  $label:"
+    echo "$matches" | head -15
+    echo ""
+    found=1
+  fi
+}
+
+# ── GNU-specific flag patterns that break on macOS ──
+
+# grep -oP is Perl-compatible regex, only available in GNU grep
+# Use grep -oE (extended regex) or ripgrep instead
+check_pattern 'grep -[oP]' 'grep -oP (GNU-only, use grep -oE or rg)'
+
+# readlink -f canonicalizes paths, GNU-only
+# Use greadlink (from coreutils) or fallback chain
+check_pattern 'readlink -f' 'readlink -f (GNU-only, needs greadlink fallback)'
+
+# date +%s%N provides nanosecond timestamps, GNU-only
+# Use perl Time::HiRes or fall back to second precision
+check_pattern 'date \+%s%N' 'date +%s%N (GNU-only nanosecond precision)'
+
+# du --max-depth controls directory depth in GNU du
+# macOS (BSD) du uses -d flag instead
+check_pattern 'du --max-depth' 'du --max-depth (GNU-only, use -d on macOS)'
+
+# stat -c formats output, GNU-only
+# macOS stat uses -f with different format specifiers
+check_pattern 'stat -c' 'stat -c (GNU-only format, use stat -f on macOS)'
+
+# sed -i without backup extension works on GNU sed
+# macOS (BSD) sed requires -i '' (empty backup extension)
+check_pattern 'sed -i[^'\'']' "sed -i without backup extension (GNU-only, macOS needs sed -i '')"
+
+# sort -h (human-numeric sort) — check if macOS sort supports this
+# Recent macOS versions include GNU sort via coreutils or native support
+check_pattern 'sort -h' 'sort -h (check if macOS sort supports -h)'
+
+# ── Hardcoded paths (won't exist on macOS) ──
+
+# /home/ paths are Linux-specific; macOS uses /Users/
+check_pattern '/home/' 'Hardcoded /home/ paths (use \$HOME)'
+
+# ── Platform-specific tool assumptions ──
+
+# apt-get is Debian/Ubuntu only; macOS uses brew
+# This check is informational — many Makefiles have both apt and brew paths
+check_pattern 'apt-get' 'apt-get (Linux-only, ensure brew fallback exists)'
+
+# ── Exit handling ──
+
+if [ "$found" -eq 0 ]; then
+  if [ "$QUIET" -eq 0 ]; then
+    echo "✅ No macOS incompatibilities detected"
+  fi
+  exit 0
+fi
+echo "Found potential macOS incompatibilities — review flagged items above"
+if [ "$STRICT" -eq 1 ]; then
+  exit 1
+fi
+exit 0

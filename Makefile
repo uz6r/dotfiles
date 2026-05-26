@@ -37,7 +37,7 @@ status: ## show dotfiles + symlink status
 				fi; \
 				target="$${prefix}$$basename"; \
 				if [ -L "$$target" ]; then \
-					if [ -e "$$(readlink -f $$target)" ]; then \
+					if [ -e "$$(readlink "$$target" 2>/dev/null || greadlink -f "$$target" 2>/dev/null || echo "$$target")" ]; then \
 						echo "✅ $$target → $$(readlink $$target)"; \
 					else \
 						echo "❌ $$target is a broken symlink"; \
@@ -274,3 +274,11 @@ sanitize: ## run all sanitization checks (zero tolerance, STRICT mode)
 	@STRICT=1 bin/audit-hardcoded
 	@echo ""
 	@echo "=== Sanitization passed ==="
+
+# -------------------
+# macos-check (cross-platform advisory)
+# -------------------
+
+macos-check: ## check macOS compatibility
+	@echo "→ Checking macOS compatibility..."
+	@bin/verify-macos || echo "  ⚠️  macOS compatibility check found issues (review output above)"
