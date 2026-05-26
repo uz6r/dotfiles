@@ -21,7 +21,7 @@ check_pattern() {
 
 check_pattern '/home/[a-zA-Z][a-zA-Z0-9_-]*/' "Hardcoded /home/* paths (use \$HOME)"
 check_pattern '(10\.|172\.(1[6-9]|2[0-9]|3[01])|192\.168\.)[0-9.]+' "Internal/private IP addresses"
-check_pattern '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' "Email addresses (excluding .planning/)" '-g !*.gitconfig -g !*.md'
+check_pattern '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' "Email addresses (excluding .planning/)" '-g !*.gitconfig -g !*.md -g !*.example'
 
 if [ "$found" -eq 0 ]; then
   echo "✅ No hardcoded paths detected"
