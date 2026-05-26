@@ -1,7 +1,7 @@
 # Stack Research
 
-**Domain:** Dotfiles cleanup and decoupling (zsh config, scripts, cross-platform)
-**Researched:** 2026-04-30
+**Domain:** Dotfile audit, sanitization, cross-platform hardening (secrets, company refs, portability, stale config, idempotency, public-safe structure)
+**Researched:** 2026-05-26
 **Confidence:** HIGH
 
 ## Recommended Stack
@@ -10,212 +10,180 @@
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| zsh | 5.x+ | Shell configuration | Existing shell - no change needed. Cleanup focuses on removing company-specific content, not replacing the shell. |
-| GNU Stow | 2.x+ | Symlink management | Existing tool in project. Use `stow -D` to unstow packages, `stow -R` to restow after cleanup. Already in Makefile. |
-| ripgrep (rg) | 13.x+ | Search and identify company references | 100x faster than grep, respects .gitignore, PCRE2 regex support. Essential for finding all Courtsite references across the repo. |
-| git-filter-repo | 2.38+ | Git history cleanup (if needed) | Official replacement for `git filter-branch`. Use if company data leaked into git history and needs complete removal. Python-based, requires fresh clone. |
+| Gitleaks | v8.30.1+ | Secrets and credential scanning | Single Go binary, zero runtime deps, pre-commit hook, `.gitleaks.toml` config file, 170+ built-in detection rules, MIT license. Maintainer announced feature-complete (security patches only) — stable target, no churn. |
+| ShellCheck | v0.11.0 | Shell portability and quality linting | Already in the project (v0.8.0 installed). v0.11.0 (Aug 2025) adds improved zsh support, expands SC2xxx portability rules that catch Linux/macOS incompatibilities. Can target specific shells with `--shell=zsh`. 39.5k stars, GPLv3. |
+| shfmt | v3.13.1+ | Shell formatting and syntax validation | Already in Makefile (go-installed). v3.13.1 (Apr 2026) with full zsh parser support. Used by `make format` to normalize shell scripts. Catches syntax errors that indicate stale/broken config. 8.8k stars, BSD-3. |
+| ripgrep (rg) | 14.x+ | Pattern-based content scanning | Already in project (v13.0.0 installed — upgrade to 14.x for `--field-match-separator` flag). Powers company reference detection, stale alias/function hunting, private data pattern matching. Foundation tool for 4 of 6 audit categories. |
 
 ### Supporting Libraries
 
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| repgrep (rgr) | 0.2.x+ | Interactive find-and-replace | When you need to preview and selectively replace Courtsite references across multiple files. Interactive TUI built on ripgrep. |
-| sd | 0.7+ | Simple search and replace | Alternative to sed for simpler find-replace operations. More intuitive syntax than sed, cross-platform (GNU/BSD compatible). |
-| gitleaks | 8.x+ | Pre-push secret scanning | Run before pushing to verify no company secrets/credentials remain in the repo. |
+| GNU Stow | 2.x+ | Symlink idempotency | Already used. `stow --restow` is naturally idempotent — won't clobber existing files, only manages symlinks. `chkstow -b` finds broken symlinks (stale config indicator). |
+| jq | 1.7+ | JSON validation and extraction | Already in Makefile. Use for validating JSON config files, extracting structured data from Gitleaks reports. |
+| sh (mvdan.cc/sh) | v3.13+ | Shell AST parsing (Go library) | Powers shfmt. Could be leveraged programmatically if custom dead-code detection is ever built, but direct Go programming not needed for this audit. |
 
 ### Development Tools
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| GNU sed | In-place file replacement (Linux) | `sed -i 's/foo/bar/g'` for simple replacements. Already available on Linux. |
-| BSD sed | In-place file replacement (macOS) | `sed -i '' 's/foo/bar/g'` - different syntax from GNU sed. Use `rg` + conditional logic. |
-| git-extras | Additional git commands | Provides `git-delete-merged-branches` etc. Not required but useful for cleanup. |
-| chkstow | Stow target maintenance | Ships with GNU Stow 2.x+. Run `chkstow -b` to find broken symlinks after cleanup. |
+| Gitleaks | Pre-commit and pre-push secret blocking | Add to `.githooks/pre-commit` alongside existing Courtsite guard. Run `gitleaks detect --no-git -v` for filesystem scan, `gitleaks git -v` for history scan. |
+| ShellCheck `--shell=zsh` | zsh-specific portability checking | SC2034 (unused variables = stale config), SC2154 (undefined variables), SC2249/SC2250 (bash-specific constructs in sh scripts). |
+| rg + patterns file | Company reference detection | Existing pattern in Makefile (`-g` exclusions). Enhance with `.patterns/company-patterns.txt` for configurable term lists. |
+| rg + grep -c | Stale alias/function detection | Compare defined aliases in `.zshrc` against actual usage: `rg "alias (\w+)" zsh/.zshrc` vs `rg "\1" .` to find unreferenced shortcuts. |
+| zsh -n | zsh syntax health check | Already in `make test`. Catches broken config before it becomes stale. Run against ALL zsh files (`.zshrc`, `.p10k.zsh`, `.zshrc.local` if present). |
+| make + .gitignore audit | Public-safe structure check | Audit `.gitignore` for completeness. Ensure private state files, tokens, and machine-specific configs are excluded. Check for hardcoded usernames with `rg "/home/\w+"` patterns. |
+
+## Domain-to-Tool Mapping
+
+| Audit Domain | Primary Tool | Fallback/Supplementary | Confidence |
+|-------------|-------------|----------------------|------------|
+| (1) Secrets/credentials | Gitleaks v8.30.1 | rg + custom `.gitleaks.toml` rules | HIGH |
+| (2) Company references | rg + `.patterns/` file | Existing Makefile `courtsite-guard` | HIGH |
+| (3) macOS/Linux portability | ShellCheck v0.11.0 | `zsh -n` syntax, Makefile `ensure_tool` macro | HIGH |
+| (4) Stale/dead config | rg + shellcheck SC2034 | `chkstow -b`, manual audit of commented blocks | MEDIUM |
+| (5) Idempotency | GNU Stow built-in | Manual `install.sh` review, `make clean && make bootstrap` test | MEDIUM |
+| (6) Public-safe structure | `.gitignore` audit + rg patterns | Manual review of file permissions, hardcoded paths | MEDIUM |
 
 ## Installation
 
 ```bash
-# Core tools (likely already installed)
-# ripgrep - search for company references
-brew install ripgrep                    # macOS
-sudo apt install ripgrep                 # Ubuntu/Debian
+# Core audit tools (cross-platform via apt/brew)
 
-# repgrep - interactive find-replace (optional)
-brew install repgrep                     # macOS
-cargo install repgrep                    # Any platform via Rust
+# Gitleaks — secrets scanning (NEW for v1.3)
+brew install gitleaks                          # macOS
+# Linux binary:
+# curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh
 
-# sd - simpler alternative to sed (optional)
-brew install sd                          # macOS
-cargo install sd                         # Any platform via Rust
+# ShellCheck upgrade (existing, upgrade from 0.8.0 → 0.11.0)
+brew upgrade shellcheck                        # macOS
+sudo apt install shellcheck                    # Ubuntu (may need backports for 0.11.0)
+# Or binary: https://github.com/koalaman/shellcheck/releases
 
-# git-filter-repo - history rewriting (only if needed)
-pip install git-filter-repo               # Any platform (Python)
-brew install git-filter-repo              # macOS
-sudo apt install git-filter-repo         # Ubuntu 22.04+
+# shfmt upgrade (existing via go, to v3.13.1)
+go install mvdan.cc/sh/v3/cmd/shfmt@v3.13.1
 
-# gitleaks - secret scanning (optional, for verification)
-brew install gitleaks                    # macOS
-curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh  # Linux
+# ripgrep upgrade (existing, from 13.0.0 → 14.x)
+brew upgrade ripgrep                           # macOS
+sudo apt install ripgrep                       # Ubuntu (check version)
 ```
 
-## Cleanup Strategy
+## Gitleaks Configuration
 
-### Phase 1: Identify All Company References
+Create `.gitleaks.toml` at repo root — integrates with existing pre-commit hook:
 
-```bash
-# Use ripgrep to find all Courtsite references
-cd ~/uz6r/dotfiles
-rg -i "courtsite|sinar|enjin|co_utsite_dir" --type-add 'config:*.{zsh,sh,md}' -t config
+```toml
+# .gitleaks.toml — secrets detection for dotfiles audit
+title = "Dotfiles Gitleaks Config"
 
-# Find all company-related scripts in bin/
-rg "courtsite|sinar|enjin" bin/
+[extend]
+useDefault = true
 
-# Check for COURTSITE_DIR environment variable usage
-rg "COURTSITE_DIR" 
-```
+# Additional custom rules for dotfile-specific patterns
+[[rules]]
+id = "ssh-private-key-in-config"
+description = "SSH private keys accidentally placed in config files"
+regex = '''-----BEGIN (?:RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----'''
+tags = ["ssh", "key"]
 
-### Phase 2: Remove Company-Specific Content
+[[rules]]
+id = "home-directory-path"
+description = "Hardcoded home directory with username (privacy leak)"
+regex = '''/home/(?!\$\{?)[a-zA-Z][a-zA-Z0-9_-]*/'''
+tags = ["privacy", "path"]
 
-#### A. Clean .zshrc (main file)
+[[rules]]
+id = "internal-url"
+description = "Internal/company URLs that should not be public"
+regex = '''https?://(?:[a-zA-Z0-9-]+\.)?(?:internal|corp|staging|dev)\.'''
+tags = ["url", "internal"]
 
-The current `.zshrc` has two sections marked for removal:
-- Lines 153-184: `localdev()` function with Courtsite directories
-- Lines 312-328: Commented Courtsite aliases (already commented out)
-
-**Action:** Remove lines 153-184 entirely. These contain the `localdev()` function that references `COURTSITE_DIR` and multiple enjin directories.
-
-```bash
-# Preview what will be removed (lines 153-184)
-sed -n '153,184p' zsh/.zshrc
-
-# Remove the localdev function block
-# Lines 153-184 contain the TODO Courtsite local dev section
-# After removal, verify no Courtsite references remain:
-rg -i "courtsite|localdev|enjin" zsh/.zshrc
-```
-
-#### B. Clean .zshrc.local (already properly separated)
-
-The `.zshrc.local` file already contains Courtsite aliases in a separate file that is:
-- Sourced conditionally (line 411-413 in .zshrc)
-- Not tracked by git (should be in .gitignore)
-
-**Action:** Verify `.zshrc.local` is in `.gitignore`. If not, add it:
-
-```bash
-# Check if .zshrc.local is ignored
-git check-ignore -v zsh/.zshrc.local || echo "NOT IGNORED - add to .gitignore"
-
-# Add to .gitignore if needed
-echo ".zshrc.local" >> .gitignore
-```
-
-#### C. Remove Company Scripts from bin/
-
-Two scripts to remove:
-- `bin/sinar-pi-setup`
-- `bin/sinar-pi-wifi-setup`
-
-**Action:** 
-```bash
-# Remove from stow management first
-stow -d ~/uz6r/dotfiles -t ~ -D bin   # Unstow bin package
-
-# Remove the files
-rm ~/uz6r/dotfiles/bin/sinar-pi-setup
-rm ~/uz6r/dotfiles/bin/sinar-pi-wifi-setup
-
-# Restow bin package (without the removed scripts)
-stow -d ~/uz6r/dotfiles -t ~ bin
-```
-
-#### D. Check for Remaining References
-
-```bash
-# Search entire repo for any remaining company references
-rg -i "courtsite|sinar|enjin|co_utsite" --hidden
-
-# Check git history (if concerned about leaked data)
-git log --all --oneline --grep="courtsite\|sinar\|enjin"
-
-# If company data found in git history, use git-filter-repo:
-# WARNING: Rewrites history - coordinate with any collaborators
-# git filter-repo --invert-paths --path-glob '*sinar*' --path-glob '*courtsite*'
-```
-
-### Phase 3: Verify and Test
-
-```bash
-# Run existing test suite
-make test
-
-# Verify zsh config loads without errors
-zsh -x zsh/.zshrc 2>&1 | grep -i error
-
-# Check for broken symlinks
-chkstow -b -t ~
-
-# Optional: Scan for leaked secrets
-gitleaks detect --source ~/uz6r/dotfiles --verbose
+# Ignore test/planning files and existing known false positives
+[[allowlists]]
+description = "Ignore planning docs and test data"
+paths = [
+  '''.planning/.*''',
+  '''Makefile''',
+  '''\.githooks/.*''',
+]
 ```
 
 ## Alternatives Considered
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| ripgrep (rg) | grep | Only if ripgrep unavailable. grep is slower, doesn't respect .gitignore by default. |
-| ripgrep + sed | repgrep (rgr) | Use repgrep for interactive, preview-based replacement. Better for reviewing changes before applying. |
-| git-filter-repo | BFG Repo-Cleaner | BFG is simpler for basic file deletions but less flexible. git-filter-repo is officially recommended by GitHub. |
-| GNU Stow | chezmoi | chezmoi has built-in templating and encryption. Overkill for this cleanup - Stow already in use. |
-| Manual edit | `sed -i` inline | For this small cleanup, manual edit with review is safer than automated replacement. |
+| Recommended | Alternative | Why Not |
+|-------------|-------------|---------|
+| **Gitleaks** (MIT) | TruffleHog (AGPL) | TruffleHog is AGPL (restrictive for personal repos), requires network for `--results=verified`, massive binary with 800+ detectors. Overkill for dotfiles. |
+| **Gitleaks** | ggshield (MIT) | Requires GitGuardian API key and account. Cloud dependency inappropriate for local-only dotfiles audit. |
+| **Gitleaks** | detect-secrets (Apache 2.0) | Python runtime required (`pip install`). Slower than Go binary. v1.5.0 (May 2024) — less actively maintained. 4.5k vs 27.3k stars. |
+| **ShellCheck** | checkbashisms (GPL) | Perl script from Debian devscripts. Only checks POSIX compatibility, no zsh support. ShellCheck covers portability (SC2xxx) + quality + security + zsh. |
+| **ShellCheck SC2034** | Dedicated dead-code tool | No existing tool specifically for dotfile stale config detection. ShellCheck's unused variable detection catches the most common case. |
+| **rg + patterns** | Custom Python/Node script | Adding a runtime dependency (Python/Node) for something rg handles out of the box is unnecessary complexity. |
+| **GNU Stow** | chezmoi | chezmoi has templating + encryption, but switching symlink managers mid-project is high risk. Stow already handles idempotency. |
 
-## What NOT to Use
+## What NOT to Add
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| `git filter-branch` | Deprecated, slow, error-prone. | `git-filter-repo` |
-| Blind find-replace across all files | May break config syntax, break symlinks. | Targeted ripgrep + manual review |
-| Removing `.zshrc.local` from repo | It's already the right pattern - untracked local overrides. | Keep pattern, just ensure it's gitignored |
-| `rm -rf` on bin/ without unstowing | Leaves broken symlinks in ~. | `stow -D` first, then remove files |
+| **TruffleHog** | AGPL license, requires Go runtime or Docker, 800+ detectors is noise for dotfiles. Network verification (`--results=verified`) calls external APIs. | Gitleaks — single binary, MIT, offline-capable, configurable rules. |
+| **ggshield** | Requires GitGuardian cloud account and API key. Adds external service dependency for what should be a local audit. | Gitleaks — fully offline, no account needed. |
+| **detect-secrets** | Requires Python 3.x runtime. Baseline management adds complexity. Yelp maintains it but slower release cadence (last release May 2024). | Gitleaks — Go binary, no runtime deps, active community. |
+| **checkbashisms** | Perl script, only POSIX/sh checking. Doesn't understand zsh or bash-specific portability concerns. ShellCheck unified coverage. | ShellCheck `--shell=zsh` — catches zsh portability, POSIX issues, and quality checks in one tool. |
+| **git-filter-repo** | Already deferred (GIT-01 in PROJECT.md). Only needed if repo goes public with leaked history. Not needed for audit phase. | Deferred — address only when public push is imminent. |
+| **repgrep (rgr)** | Interactive TUI for find-replace. Overkill for audit (finding only, not replacing). | rg directly — faster, scriptable, already in Makefile. |
+| **Custom Python/Node audit script** | Adds language runtime dependency. Breaks the zero-dependency audit pattern (rg + shellcheck + gitleaks are all single binaries). | Compose existing single-binary tools via Makefile targets. |
+| **Docker-based scanning** | Pulls large images, requires Docker daemon. Adds complexity for something that should run in <1s locally. | Native binary installs via brew/apt — faster startup, lower overhead. |
 
-## Stack Patterns by Variant
+## Stack Patterns by Audit Domain
 
-**If keeping company aliases for personal use:**
-- Move them to `~/.zshrc.local` (already done)
-- Ensure `.zshrc.local` is in `.gitignore`
-- Source conditionally in `.zshrc` (already implemented at lines 411-413)
+**If scanning for secrets (pre-commit):**
+- Use `gitleaks git --pre-commit` in `.githooks/pre-commit`
+- Configure `.gitleaks.toml` with custom rules for SSH keys, home paths, internal URLs
+- Add `.gitleaksignore` for known false positives (test data, example configs)
 
-**If complete removal needed:**
-- Delete `bin/sinar-*` scripts
-- Remove `localdev()` function from `.zshrc` (lines 153-184)
-- Remove commented aliases (lines 312-328 - already commented out)
-- Verify with `rg` no references remain
+**If checking cross-platform portability:**
+- Use `shellcheck --shell=zsh --severity=warning $(find . -name "*.sh" -o -name "*.zsh")`
+- Pay attention to SC2xxx rules (portability): SC2039 (non-POSIX), SC2249/SC2250 (bashisms)
+- For zsh-specific: `zsh -n` catches syntax errors that shellcheck doesn't
 
-**If git history cleanup needed (company data leaked):**
-- Use `git filter-repo --sensitive-data-removal`
-- Requires fresh clone, rewrites all history
-- Coordinate with collaborators (force push required)
-- Rotate any exposed credentials immediately
+**If hunting stale config:**
+- Use `rg "alias (\w+)=" zsh/.zshrc -or '$1'` to extract aliases, then grep for usage
+- Use `shellcheck -x zsh/.zshrc` to find unused variables (SC2034)
+- Use `chkstow -b` to find broken symlinks pointing to deleted configs
+- Manual review: commented-out blocks > 6 months old = candidate for removal
+
+**If verifying idempotency:**
+- Stow is naturally idempotent: `stow -R` restows without clobbering
+- `install.sh` must check for existing installations before acting
+- Test: `make clean && make bootstrap && make bootstrap` (second run must succeed with "already installed" messages)
+
+**If checking public safety:**
+- Audit `.gitignore` for completeness (`.env`, `.zshrc.local`, `*.pem`, tokens)
+- Search for hardcoded usernames: `rg "/home/(?!\$\{?)\w+/" .`
+- Search for email addresses: `rg "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" .` (exclude planning docs)
+- Verify no `.git` directory leak: `rg "\.git/"` shouldn't find tracked git internals
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| ripgrep 13.x | All modern shells | No shell dependencies, standalone binary |
-| git-filter-repo 2.38+ | Git 2.24+ | Requires Python 3.5+ |
-| GNU Stow 2.x | Any POSIX system | Perl-based, widely available |
-| repgrep 0.2.x | ripgrep 13.x+ | Requires ripgrep installed first |
+| Tool | Current Version | Target Version | Platform Support | Notes |
+|------|----------------|----------------|------------------|-------|
+| shellcheck | 0.8.0 | 0.11.0 | Linux (apt/brew), macOS (brew) | Upgrade needed for zsh SC2xxx improvements |
+| rg (ripgrep) | 13.0.0 | 14.x+ | Linux, macOS, Windows | Works fine at 13.0.0 — upgrade optional |
+| shfmt | go-installed | v3.13.1 | Go 1.25+ required | Already via `ensure_tool` in Makefile |
+| gitleaks | NOT INSTALLED | v8.30.1 | Linux, macOS (brew/binary) | New addition for v1.3 |
+| jq | installed | 1.7+ | Linux, macOS | Already in Makefile |
 
 ## Sources
 
-- [Context7: /burntsushi/ripgrep](https://github.com/burntsushi/ripgrep) — Search syntax, --replace flag, FAQ (HIGH confidence)
-- [GitHub Docs: Removing sensitive data](https://docs.github.com/articles/remove-sensitive-data) — git-filter-repo usage, force push workflow (HIGH confidence)
-- [git-filter-repo docs](https://www.mintlify.com/newren/git-filter-repo/) — Path filtering, sensitive data removal (HIGH confidence)
-- [GNU Stow manual](https://www.gnu.org/software/stow/manual/) — Delete/unstow operations, chkstow utility (HIGH confidence)
-- [StackOverflow: .zshrc.local pattern](https://stackoverflow.com/questions/67375498/) — Not a standard zsh file, but common convention in dotfiles (MEDIUM confidence)
-- [timkicker/dotfiles security guide](https://github.com/timkicker/dotfiles/security) — Pre-push checklist, rg scanning (HIGH confidence)
-- [Websearch: dotfiles cleanup best practices 2026] — General patterns for local file separation (MEDIUM confidence)
+- [GitHub: gitleaks/gitleaks v8.30.1](https://github.com/gitleaks/gitleaks) — README, config format, pre-commit hook integration, feature-complete announcement (HIGH confidence)
+- [GitHub: trufflesecurity/trufflehog](https://github.com/trufflesecurity/trufflehog) — Detector count (800+), verification feature, AGPL license (HIGH confidence)
+- [GitHub: Yelp/detect-secrets v1.5.0](https://github.com/Yelp/detect-secrets) — Plugin system, baseline approach, Python runtime requirement (HIGH confidence)
+- [GitHub: GitGuardian/ggshield v1.50.4](https://github.com/GitGuardian/ggshield) — API key requirement, cloud dependency, 500+ detectors (HIGH confidence)
+- [GitHub: koalaman/shellcheck v0.11.0](https://github.com/koalaman/shellcheck) — Portability checks (SC2xxx), zsh support via `--shell=zsh`, 39.5k stars (HIGH confidence)
+- [GitHub: mvdan/sh v3.13.1](https://github.com/mvdan/sh) — zsh parser support in shfmt, Go library for shell AST (HIGH confidence)
+- [GNU Stow manual](https://www.gnu.org/software/stow/manual/) — `chkstow -b` for broken symlinks, `--restow` idempotency (HIGH confidence)
+- Existing codebase: `.planning/codebase/STACK.md`, `Makefile`, `.githooks/pre-commit` — current tool inventory and integration points (HIGH confidence)
 
 ---
-*Stack research for: Dotfiles cleanup and Courtsite decoupling*
-*Researched: 2026-04-30*
+
+*Stack research for: Dotfiles v1.3 Final Audit & Sanitization before Laptop Reset*
+*Researched: 2026-05-26*
