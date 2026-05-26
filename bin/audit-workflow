@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# bin/audit-workflow — Profile shell history and generate WORKFLOW.md
+# Usage:
+#   ./audit-workflow                    # Output to stdout
+#   ./audit-workflow --output WORKFLOW.md  # Output to file
+set -euo pipefail
+
+OUTPUT_FILE=""
+if [ "${1:-}" = "--output" ] && [ -n "${2:-}" ]; then
+  OUTPUT_FILE="$2"
+fi
+
+# Locate shell history
+HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
+if [ ! -f "$HISTFILE" ]; then
+  HISTFILE="$HOME/.zsh_history"
+fi
+if [ ! -f "$HISTFILE" ]; then
+  echo "ERROR: No zsh history found at $HISTFILE"
+  echo "Set ZDOTDIR or ensure ~/.zsh_history exists"
+  exit 1
+fi
+
+WORKFLOW_CONTENT=""
+write_line() { WORKFLOW_CONTENT="${WORKFLOW_CONTENT}${1}"$'\n'; }
+write_heading() { write_line ""; write_line "## $1"; write_line ""; }
+write_subheading() { write_line "### $1"; write_line ""; }
+
+# ── Phase 1: Parse history ──
+write_heading "Workflow Preservation Report"
+write_line "**Generated:** $(date '+%Y-%m-%d')"
+write_line "**Source:** \`$HISTFILE\`"
+HIST_LINES=$(wc -l < "$HISTFILE" 2>/dev/null || echo "unknown")
+write_line "**History size:** ${HIST_LINES} commands"
+write_line ""
+write_line "> This report captures portable workflows from shell history."
+write_line "> Paths have been anonymized (\$HOME, \$TMP, etc.). Review before sharing."
+write_line "---"
+
+# ── Phase 2: Extract top commands (first token of each line, dedup, sort by frequency) ──
+write_heading "Top Commands"
+write_line "| Command | Usage Count | Category |"
+write_line "|---------|------------|----------|"
+
+# Use temp file to avoid subshell pipe issue (bash writes to pipe create subshells)
+TOPCMDS_FILE=$(mktemp /tmp/audit-workflow-topcmds.XXXXXX)
+trap 'rm -f "$TOPCMDS_FILE"' EXIT
+
+rg -o '^\s*:\s+\d+:\d+;(.+)' "$HISTFILE" 2>/dev/null | \
+  sed 's/^.*;//' | \
+  awk '{cmd[$1]++} END {for (c in cmd) print c, cmd[c]}' | \
+  sort -k2 -rn | \
+  awk 'NR<=40' > "$TOPCMDS_FILE" || true
+
+while read -r cmd count; do
+  case "$cmd" in
+    git|gst|gs|ga|gc|gp|gco|gb|gd|glog|gpl|gpo|gpub|gmain) cat="git" ;;
+    cd|ls|ll|la|pwd|duh|ff|fd) cat="navigation" ;;
+    nvim|vim|code|nano) cat="editor" ;;
+    docker|dc|dps|dex|dlog) cat="docker" ;;
+    pnpm|npm|yarn|npx|node) cat="node" ;;
+    ssh|scp|rsync) cat="remote" ;;
+    make|sh|bash|zsh) cat="build" ;;
+    brew|apt|apt-get|snap) cat="package" ;;
+    tmux|tmuxinator) cat="tmux" ;;
+    cargo|rustc|go|python|ruby) cat="lang" ;;
+    rg|grep|find|awk|sed|sort|uniq|xargs) cat="text" ;;
+    curl|wget|http) cat="network" ;;
+    kill|ps|top|htop|lsof) cat="process" ;;
+    man|tldr|help) cat="help" ;;
+    history|fc) cat="shell" ;;
+    exit|clear) cat="meta" ;;
+    *) cat="other" ;;
+  esac
+  write_line "| \`$cmd\` | $count | $cat |"
+done < "$TOPCMDS_FILE"
+
+# ── Phase 3: Extract custom functions called from history ──
+write_heading "Used Functions"
+write_line "The following functions are defined in tracked configs and appear in shell history:"
+
+FUNCS_FILE=$(mktemp /tmp/audit-workflow-funcs.XXXXXX)
+trap 'rm -f "$FUNCS_FILE"' EXIT
+
+rg '^\s*([a-zA-Z_-]+)\(\)' zsh/.zshrc 2>/dev/null | sed 's/^\s*//; s/().*//' > "$FUNCS_FILE"
+
+while read -r func; do
+  count=$(rg -c "\b${func}\b" "$HISTFILE" 2>/dev/null || echo 0)
+  if [ "$count" -gt 0 ]; then
+    write_line "- \`$func\` ($count uses) — defined in tracked .zshrc"
+  else
+    write_line "- \`$func\` (0 uses) — defined in tracked .zshrc but not found in history"
+  fi
+done < "$FUNCS_FILE"
+
+# ── Phase 4: Undocumented aliases (defined in .zshrc.local or local state) ──
+write_heading "Undocumented Aliases (Local Only)"
+write_line "These aliases are active on this machine but NOT defined in tracked .zshrc:"
+
+ALIASES_FILE=$(mktemp /tmp/audit-workflow-aliases.XXXXXX)
+trap 'rm -f "$ALIASES_FILE"' EXIT
+
+alias 2>/dev/null > "$ALIASES_FILE"
+
+while read -r alias_def; do
+  alias_name=$(echo "$alias_def" | sed 's/.*\s//; s/=.*//')
+  if ! rg -q "alias ${alias_name}=" zsh/.zshrc 2>/dev/null; then
+    write_line "- \`$alias_def\`"
+  fi
+done < "$ALIASES_FILE"
+
+# ── Phase 5: Untracked scripts in PATH ──
+write_heading "Untracked Scripts in User PATH"
+write_line "These executable scripts exist in user-local PATH directories but are NOT in the dotfiles repo:"
+while IFS= read -r dir; do
+  # Only scan user-local directories (skip system dirs like /usr/bin, /bin)
+  if [[ "$dir" != "$HOME"/* ]]; then
+    continue
+  fi
+  if [ -d "$dir" ]; then
+    for f in "$dir"/*; do
+      if [ -x "$f" ] && [ ! -L "$f" ]; then
+        fname=$(basename "$f")
+        if [ ! -f "bin/$fname" ]; then
+          write_line "- \`$f\`"
+        fi
+      fi
+    done
+  fi
+done < <(echo "$PATH" | tr ':' '\n')
+
+# ── Anonymize paths in the output ──
+WORKFLOW_CONTENT="${WORKFLOW_CONTENT//$HOME/\$HOME}"
+WORKFLOW_CONTENT="${WORKFLOW_CONTENT//\/tmp/\$TMP}"
+
+# ── Write output ──
+if [ -n "$OUTPUT_FILE" ]; then
+  echo "$WORKFLOW_CONTENT" > "$OUTPUT_FILE"
+  echo "✅ Workflow report written to $OUTPUT_FILE"
+  echo "   Lines: $(wc -l < "$OUTPUT_FILE")"
+else
+  echo "$WORKFLOW_CONTENT"
+fi
