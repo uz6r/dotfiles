@@ -85,15 +85,16 @@ Currently using Ubuntu on a desktop. Leaving the company — all Courtsite/compa
 | verify-cleanup as stricter secondary check | Zero exclusions beyond .git for full-repo proof (v1.2) | ✓ Good |
 | Per-package prefix logic in make status | bin/ uses $HOME/, others use $HOME/. — fixed pre-existing bug (v1.2) | ✓ Good |
 
-## Next Milestone Goals
+## Current Milestone: v1.3 Final Audit & Sanitization before Laptop Reset
 
-No milestone currently planned. Options for next milestone:
-- Lazy-load non-critical zsh plugins (deferred from v1.1)
-- Modular `.zshrc` with `conf.d/` directory structure
-- Cross-platform validation on macOS hardware
-- Test stow symlink creation
+**Goal:** Comprehensive audit of the dotfiles repo and developer environment before the current machine is wiped — preserve all portable workflows, eliminate any remaining sensitive/proprietary traces, and ensure macOS compatibility.
 
-Use `/gsd-new-milestone` to begin planning.
+**Target features:**
+- Deep workflow preservation audit (aliases, functions, shell history, scripts, editor configs)
+- Zero-tolerance sanitization (company refs, secrets, tokens, internal URLs, credentials)
+- macOS compatibility review (Linux-only assumptions, package manager, filesystem, shell)
+- Repository maintainability improvements (stale configs, idempotency, organization, docs)
+- Portable/public-safe structure validation (separate public from private state)
 
 ## Evolution
 
