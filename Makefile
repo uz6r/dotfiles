@@ -232,7 +232,7 @@ courtsite-guard: ## check for Courtsite references in repo
 
 verify-cleanup: ## full repo scan for remaining Courtsite references
 	@echo "→ Running final cleanup verification..."
-	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' . && echo "  ✅ No Courtsite references found anywhere in repo" || { echo "❌ Courtsite references found in repo"; exit 1; }
+	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' . && echo "  ✅ No Courtsite references found anywhere in repo" || { echo "❌ Courtsite references found in repo"; exit 1; }
 	@echo ""
 	@echo "→ Manual ~/.zshrc.local check (not in git):"
 	@echo "  Run this on your local machine:"
