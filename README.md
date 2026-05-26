@@ -65,7 +65,7 @@ and it will attempt to auto-install everything with your package manager. if som
 ## bootstrap
 
 ```sh
-git clone git@github.com:yourname/dotfiles.git ~/dotfiles
+git clone git@github.com:uz6r/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 make bootstrap
 ```
@@ -94,8 +94,8 @@ dotfiles/
 ├── Makefile         # make shortcuts (bootstrap, update, clean, status, lint/format)
 ├── README.md        # documentation
 ├── bin/             # personal scripts (symlinked into ~/bin)
-│   ├── sinar-pi-setup       # build + package sinarclient tarball
-│   └── sinar-pi-wifi-setup  # wifi setup for Pi (nmconnection + rsync)
+│   ├── audit-nvim-plugins   # audit neovim plugin state
+│   └── profile-zsh          # profile zsh startup time
 ├── git/             # git configs (.gitconfig etc.)
 ├── install.sh       # bootstrap script (runs stow, used by make)
 ├── nvim/            # neovim configs (.config/nvim/init.lua + lua modules)
@@ -129,7 +129,6 @@ make ci-check   # test the same checks CI will run
 
 ## notes
 
-- Some Courtsite-related aliases are being phased out — see `.zshrc` comments marked `TODO`
 - machine-specific secrets go in ~/.zshrc.local or ~/.gitconfig.local
 - add scripts to bin/ to make them available globally
 - all configs are symlinked into $HOME via stow
