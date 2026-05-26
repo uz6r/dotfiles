@@ -9,8 +9,8 @@
 
 ## Phases
 
-- [ ] **Phase 6: Clean Shell Configuration** - Remove Courtsite references from .zshrc
-- [ ] **Phase 7: Remove Company Scripts** - Delete bin/ scripts and verify symlinks
+- [x] **Phase 6: Clean Shell Configuration** - Remove Courtsite references from .zshrc
+- [x] **Phase 7: Remove Company Scripts** - Delete bin/ scripts and verify symlinks
 - [ ] **Phase 8: Verify & Update Documentation** - Final verification and README update
 
 ---
@@ -50,7 +50,10 @@ Plans:
   2. User can run GNU Stow operations without broken symlink errors (`stow -D bin && stow bin` succeeds)
   3. User can verify PATH configuration doesn't reference non-existent `scripts/` directory (line 80 audited)
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 07-01-PLAN.md — Remove Courtsite scripts from bin/ & verify stow
 
 ---
 
@@ -66,7 +69,11 @@ Plans:
   2. User can run `rg -i "courtsite|sinar|enjin|COURTSITE_DIR"` with zero matches in the repository
   3. User has clear instructions to check `~/.zshrc.local` manually for any remaining Courtsite references
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Update README.md and STRUCTURE.md to remove Courtsite references, fix URL, update directory trees
+- [ ] 08-02-PLAN.md — Clean up guard exclusions, add verify-cleanup target, integrate into make test
 
 ---
 
@@ -75,8 +82,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 6. Clean Shell Configuration | 2/2 | Complete | 2026-04-30 |
-| 7. Remove Company Scripts | 0/3 | Not started | - |
-| 8. Verify & Update Documentation | 0/3 | Not started | - |
+| 7. Remove Company Scripts | 1/1 | Complete | 2026-05-26 |
+| 8. Verify & Update Documentation | 0/2 | In progress | - |
 
 ---
 
