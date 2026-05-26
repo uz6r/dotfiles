@@ -11,3 +11,41 @@ dotfiles_backup/
 *.swo
 *.un~
 
+# NetworkManager WiFi configs (contain plaintext PSK)
+*.nmconnection
+
+# Binary artifacts (lazygit tracked by mistake)
+lazygit
+lazygit.tar.gz
+
+# Environment files with secrets
+.env*
+.credentials
+
+# Private key and certificate files
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Cloud provider configs
+.aws/
+.config/gcloud/
+.kube/
+
+# Shell history files
+.bash_history
+.zsh_history
+*history
+
+# Credential and token files
+.netrc
+.git-credentials
+*.token
+credentials
+
+# Private data directory
+private/
+
+# Allow the README in private/ (documentation only)
+!private/README.md
