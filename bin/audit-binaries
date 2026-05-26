@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# bin/audit-binaries — Find binary/large files committed to repo
+set -euo pipefail
+STRICT="${STRICT:-0}"
+[[ "${1:-}" == "--strict" ]] && STRICT=1
+
+echo "=== Binary Scan ==="
+found=0
+
+# Scan tracked files and untracked non-ignored files (respects .gitignore)
+FILE_LIST=$(git ls-files --cached --others --exclude-standard 2>/dev/null || true)
+
+if [ -z "$FILE_LIST" ]; then
+  echo "✅ No binaries detected"
+  exit 0
+fi
+
+# Check for ELF/Mach-O binaries
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  [ ! -f "$f" ] && continue
+  filetype=$(file -b "$f" 2>/dev/null || echo "unknown")
+  if echo "$filetype" | grep -qiE 'ELF|Mach-O|binary' && ! echo "$filetype" | grep -qi 'shell script'; then
+    size=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo "?")
+    echo "⚠️  Binary detected: $f ($filetype, ${size} bytes)"
+    found=1
+  fi
+done <<< "$FILE_LIST"
+
+# Check for files > 1MB that might be unintended binaries
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  [ ! -f "$f" ] && continue
+  size=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null || echo "0")
+  if [ "$size" -gt 1048576 ] 2>/dev/null; then
+    # Check if it's not in file-type exclusion list
+    if file -b "$f" 2>/dev/null | grep -qiE 'archive|compressed|image|audio|video'; then
+      :  # skip known large types
+    else
+      echo "⚠️  Large file: $f (${size} bytes)"
+      found=1
+    fi
+  fi
+done <<< "$FILE_LIST"
+
+if [ "$found" -eq 0 ]; then
+  echo "✅ No binaries detected"
+  exit 0
+fi
+if [ "$STRICT" -eq 1 ]; then
+  echo "❌ Binary scan FAILED (strict mode)"
+  exit 1
+fi
+exit 0

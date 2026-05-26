@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# bin/audit-stale — Find stale configs, empty dirs, dead references
+set -euo pipefail
+STRICT="${STRICT:-0}"
+[[ "${1:-}" == "--strict" ]] && STRICT=1
+
+echo "=== Stale Config Scan ==="
+found=0
+
+# Find empty directories (excluding .git, node_modules)
+empty_dirs=$(find . -type d -empty -not -path './.git/*' -not -path './node_modules/*' -not -path './private/*' 2>/dev/null)
+if [ -n "$empty_dirs" ]; then
+  echo "⚠️  Empty directories:"
+  echo "$empty_dirs"
+  found=1
+fi
+
+# Check for stow directories not listed in Makefile stow targets
+stow_dirs=$(ls -d */ 2>/dev/null | tr -d '/')
+target_dirs="zsh git nvim bin tmux"
+for dir in $stow_dirs; do
+  case "$dir" in
+    .git|.github|.githooks|.planning|private|scripts|node_modules) continue ;;
+  esac
+  if ! echo "$target_dirs" | grep -q "$dir"; then
+    echo "⚠️  Directory '$dir' exists but is not a stow target"
+    found=1
+  fi
+done
+
+if [ "$found" -eq 0 ]; then
+  echo "✅ No stale config detected"
+  exit 0
+fi
+if [ "$STRICT" -eq 1 ]; then
+  echo "❌ Stale config scan FAILED (strict mode)"
+  exit 1
+fi
+exit 0

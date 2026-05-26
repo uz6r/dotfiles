@@ -238,3 +238,39 @@ verify-cleanup: ## full repo scan for remaining Courtsite references
 	@echo "  Run this on your local machine:"
 	@echo "    grep -i 'courtsite\\|sinar\\|enjin' ~/.zshrc.local 2>/dev/null"
 	@echo "  (expected: no matches — if found, remove them manually)"
+
+# -------------------
+# audit (REPORT mode: run all, show all, don't block)
+# -------------------
+
+audit-secrets: ## scan for API keys, tokens, and credentials
+	@echo "→ Scanning for secrets..."
+	@bin/audit-secrets || true
+
+audit-binaries: ## find binary/large files in repo
+	@echo "→ Checking for binary files..."
+	@bin/audit-binaries || true
+
+audit-hardcoded: ## find hardcoded paths, IPs, personal data
+	@echo "→ Scanning for hardcoded data..."
+	@bin/audit-hardcoded || true
+
+audit-stale: ## find stale configs, empty dirs, dead references
+	@echo "→ Checking for stale configuration..."
+	@bin/audit-stale || true
+
+audit: audit-secrets audit-binaries audit-hardcoded audit-stale ## run all audit checks (report mode)
+	@echo "✅ audit complete"
+
+# -------------------
+# sanitize (STRICT mode: block on any finding)
+# -------------------
+
+sanitize: ## run all sanitization checks (zero tolerance, STRICT mode)
+	@echo "=== Running Sanitization (STRICT mode) ==="
+	@echo ""
+	@STRICT=1 bin/audit-secrets
+	@STRICT=1 bin/audit-binaries
+	@STRICT=1 bin/audit-hardcoded
+	@echo ""
+	@echo "=== Sanitization passed ==="

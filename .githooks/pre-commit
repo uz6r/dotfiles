@@ -4,13 +4,32 @@
 
 echo "Running pre-commit checks..."
 
-# Check for Courtsite references
+# 1. Courtsite reference detection
 if rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' . ; then
   echo "❌ Courtsite references found. Commit blocked."
   exit 1
 fi
 
-# Run formatting
+# 2. binary/large file detection (staged files only)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+if echo "$STAGED_FILES" | grep -q .; then
+  if echo "$STAGED_FILES" | xargs file 2>/dev/null | grep -qiE 'ELF|Mach-O|binary' | grep -vi 'shell script'; then
+    echo "❌ binary files detected in staged changes. Commit blocked."
+    exit 1
+  fi
+fi
+
+# 3. Generic secret detection (staged files only, fast regex)
+if echo "$STAGED_FILES" | grep -q .; then
+  if echo "$STAGED_FILES" | xargs rg -l --no-heading \
+    'sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36,}|AKIA[0-9A-Z]{16}|psk=.*|-----BEGIN (RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----' \
+    2>/dev/null; then
+    echo "❌ Potential secrets found in staged files. Commit blocked."
+    exit 1
+  fi
+fi
+
+# 4. Run formatting
 make format > /dev/null 2>&1
 
 # Check for uncommitted changes
