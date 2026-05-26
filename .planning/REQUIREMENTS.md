@@ -66,38 +66,38 @@ Requirements for v1.3 milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SANI-01 | — | Pending |
-| SANI-02 | — | Pending |
-| SANI-03 | — | Pending |
-| SANI-04 | — | Pending |
-| SANI-05 | — | Pending |
-| SANI-06 | — | Pending |
-| SANI-07 | — | Pending |
-| SANI-08 | — | Pending |
-| MACO-01 | — | Pending |
-| MACO-02 | — | Pending |
-| MACO-03 | — | Pending |
-| MACO-04 | — | Pending |
-| MACO-05 | — | Pending |
-| MACO-06 | — | Pending |
-| MAIN-01 | — | Pending |
-| MAIN-02 | — | Pending |
-| MAIN-03 | — | Pending |
-| MAIN-04 | — | Pending |
-| MAIN-05 | — | Pending |
-| WORK-01 | — | Pending |
-| WORK-02 | — | Pending |
-| WORK-03 | — | Pending |
-| PUBS-01 | — | Pending |
-| PUBS-02 | — | Pending |
-| PUBS-03 | — | Pending |
-| PUBS-04 | — | Pending |
+| SANI-01 | Phase 9 | Pending |
+| SANI-02 | Phase 9 | Pending |
+| SANI-03 | Phase 9 | Pending |
+| SANI-04 | Phase 9 | Pending |
+| SANI-05 | Phase 9 | Pending |
+| SANI-06 | Phase 9 | Pending |
+| SANI-07 | Phase 9 | Pending |
+| SANI-08 | Phase 9 | Pending |
+| MACO-01 | Phase 9 | Pending |
+| MACO-02 | Phase 9 | Pending |
+| MACO-03 | Phase 9 | Pending |
+| MACO-04 | Phase 9 | Pending |
+| MACO-05 | Phase 9 | Pending |
+| MACO-06 | Phase 9 | Pending |
+| MAIN-01 | Phase 9 | Pending |
+| MAIN-02 | Phase 9 | Pending |
+| MAIN-03 | Phase 9 | Pending |
+| MAIN-04 | Phase 9 | Pending |
+| MAIN-05 | Phase 9 | Pending |
+| WORK-01 | Phase 9 | Pending |
+| WORK-02 | Phase 9 | Pending |
+| WORK-03 | Phase 9 | Pending |
+| PUBS-01 | Phase 9 | Pending |
+| PUBS-02 | Phase 9 | Pending |
+| PUBS-03 | Phase 9 | Pending |
+| PUBS-04 | Phase 9 | Pending |
 
 **Coverage:**
 - v1 requirements: 28 total
-- Mapped to phases: 0
-- Unmapped: 28
+- Mapped to phases: 28 (all → Phase 9)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-26*
-*Last updated: 2026-05-26 after milestone v1.3 research and scoping*
+*Last updated: 2026-05-26 — traceability updated for v1.3 Phase 9*
