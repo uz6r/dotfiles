@@ -72,7 +72,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Update README.md and STRUCTURE.md to remove Courtsite references, fix URL, update directory trees
+- [x] 08-01-PLAN.md — Update README.md and STRUCTURE.md to remove Courtsite references, fix URL, update directory trees
 - [ ] 08-02-PLAN.md — Clean up guard exclusions, add verify-cleanup target, integrate into make test
 
 ---
