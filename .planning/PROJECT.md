@@ -33,6 +33,7 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 - ✓ Shell startup profiling (v1.1) — `bin/profile-zsh` script
 - ✓ Neovim plugin audit (v1.1) — `bin/audit-nvim-plugins` script  
 - ✓ Automated dotfiles tests (v1.1) — `make test` validates zsh, git, nvim configs
+- ✓ Courtsite scripts removal (Phase 07) — `bin/sinar-pi-setup` and `bin/sinar-pi-wifi-setup` deleted, `scripts/` PATH reference cleaned up
 
 ### Out of Scope
 
@@ -40,10 +41,11 @@ Dotfiles that "just work" regardless of which OS I'm booted into. No surprises, 
 - [Shell integration for iTerm2] — default terminal fine
 - [Brewfile generation] — manual brew install sufficient
 
-## Current State (v1.1 Shipped)
+## Current State (v1.2 Phase 07 Complete)
 
-**Shipped:** 2026-04-14
+**Shipped:** 2026-05-26
 
+- Phase 07 complete — Courtsite scripts removed from bin/, stow fixed, PATH cleaned up
 - Shell profiling: `bin/profile-zsh` — measures startup time (~950ms), identifies slow components
 - Plugin audit: `bin/audit-nvim-plugins` — lists 23 plugins, identifies candidates for removal
 - Test suite: `make test` — validates zsh, git, nvim configs
@@ -57,7 +59,7 @@ Currently using Ubuntu on a desktop. Leaving the company — removing all Courts
 - `git/` — .gitconfig
 - `nvim/` — .config/nvim/init.lua + lua modules
 - `tmux/` — .tmux.conf
-- `bin/` — profile-zsh, audit-nvim-plugins, sinar-pi-setup, sinar-pi-wifi-setup
+- `bin/` — profile-zsh, audit-nvim-plugins
 - `Makefile` — bootstrap, update, clean, status, lint/format, test
 - `install.sh` — stow setup, git hooks
 
@@ -100,4 +102,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-30 after v1.2 milestone started*
+*Last updated: 2026-05-26 after Phase 07 completed*
