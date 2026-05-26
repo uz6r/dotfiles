@@ -217,6 +217,9 @@ test: ## run all dotfiles validation tests
 	@echo "→ Running courtsite guard"
 	@$(MAKE) courtsite-guard
 	@echo ""
+	@echo "→ Running cleanup verification"
+	@$(MAKE) verify-cleanup
+	@echo ""
 	@echo "=== All tests passed ==="
 
 # -------------------
@@ -226,3 +229,12 @@ test: ## run all dotfiles validation tests
 courtsite-guard: ## check for Courtsite references in repo
 	@echo "→ Checking for Courtsite references..."
 	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' -g '!.planning' -g '!Makefile' -g '!.githooks' . && echo "  ✅ No Courtsite references found" || { echo "❌ Courtsite references found"; exit 1; }
+
+verify-cleanup: ## full repo scan for remaining Courtsite references
+	@echo "→ Running final cleanup verification..."
+	@! rg -i "courtsite|sinar|enjin|COURTSITE_DIR" --files-with-matches --hidden -g '!.git' . && echo "  ✅ No Courtsite references found anywhere in repo" || { echo "❌ Courtsite references found in repo"; exit 1; }
+	@echo ""
+	@echo "→ Manual ~/.zshrc.local check (not in git):"
+	@echo "  Run this on your local machine:"
+	@echo "    grep -i 'courtsite\\|sinar\\|enjin' ~/.zshrc.local 2>/dev/null"
+	@echo "  (expected: no matches — if found, remove them manually)"
