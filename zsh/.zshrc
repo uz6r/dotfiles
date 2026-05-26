@@ -77,7 +77,7 @@ if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/bin" ]; then
 fi
 
 # User local paths
-export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$HOME/uz6r/dotfiles/scripts:$PATH"
+export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.npm-global/bin:$HOME/.local/share/pnpm:$PATH"
 
 # ---------------------------------
 # history settings
