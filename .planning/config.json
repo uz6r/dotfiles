@@ -9,6 +9,6 @@
     "plan_check": false,
     "verifier": false,
     "nyquist_validation": false,
-    "_auto_chain_active": false
+    "_auto_chain_active": true
   }
 }
